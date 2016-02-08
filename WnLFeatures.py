@@ -33,8 +33,22 @@ def silence_ratio(rate, data, tolerance=0.05):
 
     # Get the frame averages of the fft transforms and return these as a list
     frame_averages = [abs(np.mean(fft.fft(norm_data[i*num_samples:i*num_samples+(num_samples-1)]))) for i in range(0, num_frames)]
-    
+
     num_silence_frames = len([x for x in frame_averages if x < tolerance])
 
     s_ratio = 100-((num_silence_frames/num_frames)*100)
     return s_ratio
+
+
+def librosa_mfcc_delta(rate, data):
+    mfcc = lib.feature.mfcc(data, rate)
+
+    mfcc_delta = lib.feature.delta(mfcc)
+
+    return mfcc, mfcc_delta
+
+
+def librosa_chromagram(rate, data):
+    har, per = lib.effects.hpss(data)
+
+    return lib.feature.chroma_cqt(y=har, sr=rate)
