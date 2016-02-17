@@ -49,6 +49,13 @@ def librosa_mfcc_delta(rate, data):
 
 
 def librosa_chromagram(rate, data):
-    har, per = lib.effects.hpss(data)
+    stft = lib.core.stft(data)
+    decom_h, decom_p = lib.decompose.hpss(stft)
+    istft_h = lib.core.istft(decom_h)
+    istft_p = lib.core.istft(decom_p)
 
-    return lib.feature.chroma_cqt(y=har, sr=rate)
+    return lib.feature.chroma_cqt(y=istft_h, sr=rate)
+
+
+def spec_centroid(rate, data):
+    return lib.feature.spectral_centroid(y=data, sr = rate)
