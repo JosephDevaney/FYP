@@ -1,12 +1,15 @@
 import os
 import scipy.io.wavfile as wav
 import WnLFeatures as wnl
+import pickle as pkl
 
 
 class VideoFeatures:
-    def __init__(self, rate, data):
-        self.rate = rate
-        self.data = data.T[0]
+    def __init__(self, file_data):
+        self.rate = file_data[0]
+        self.data = file_data[1].T[0]
+        rate = file_data[0]
+        data = file_data[1].T[0]
 
         self.bvratio = wnl.beat_variance_ratio(rate, data)
 
@@ -18,12 +21,22 @@ class VideoFeatures:
 
         self.spectroid = wnl.spec_centroid(rate, data)
 
+    def write_to_file(self, pickler=None):
+        if pickler is None:
+            file = "features.ftr"
+            with open(file) as output:
+                pkl.dump(self, output, -1)
+        else:
+            pickler.dump(self)
 
 def main():
-    file = input("Enter the filepath here: \n")
+    path = input("Enter the filepath here: \n")
 
-    rate, data = wav.read(file)
-
+    # rate, data = wav.read(file)
+    with open(path + "\\features.ftr", "wb+") as output:
+        pickler = pkl.Pickler(output, -1)
+        videos = [VideoFeatures(wav.read(path + file)).write_to_file(pickler) for file in os.listdir(path)
+                  if file.endswith('.wav')]
 
 
 if __name__ == "__main__":
