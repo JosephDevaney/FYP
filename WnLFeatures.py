@@ -59,3 +59,7 @@ def librosa_chromagram(rate, data):
 
 def spec_centroid(rate, data):
     return lib.feature.spectral_centroid(y=data, sr = rate)
+
+
+def lib_to_mono(data):
+    return lib.to_mono(data)

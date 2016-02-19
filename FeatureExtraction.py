@@ -7,14 +7,13 @@ import pickle as pkl
 class VideoFeatures:
     def __init__(self, rate, data, filename):
         self.filename = filename
+        shp = data.shape
 
-        # self.rate = file_data[0]
-        # self.data = file_data[1]
-        # rate = file_data[0]
-        # data = file_data[1]
-        #
-        # data = data[0]
-        data = data.T[0]
+        if len(shp) > 1 and shp[0] > shp[1]:
+            data = data.T
+
+        data = wnl.lib_to_mono(data)
+
         self.rate = rate
         self.data = data
 
@@ -65,8 +64,6 @@ def main():
                 vid = VideoFeatures(rate, data, file)
                 vid.write_to_file(pickler)
                 videos[file] = vid
-
-
 
     print("Dunzo!")
 
