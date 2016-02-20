@@ -47,7 +47,7 @@ def main():
                 try:
                     vid = pkl.load(inp)
                     videos[vid.filename] = vid
-                except:
+                except EOFError:
                     print("EOF")
                     break
     except:
