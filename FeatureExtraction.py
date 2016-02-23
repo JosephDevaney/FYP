@@ -43,15 +43,17 @@ def main():
     videos = {}
     try:
         with open(path + "features.ftr", "rb") as inp:
+            unpickle = pkl.Unpickler(inp)
             while True:
                 try:
-                    vid = pkl.load(inp)
+                    vid = unpickle.load()
                     videos[vid.filename] = vid
                 except EOFError:
                     print("EOF")
                     break
-    except:
-        print("No file")
+    except Exception as e:
+        print(type(e))
+        print(e.args)
 
     # rate, data = wav.read(file)
     with open(path + "features.ftr", "ab") as output:

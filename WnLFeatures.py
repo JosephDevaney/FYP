@@ -5,20 +5,26 @@ import scipy.fftpack as fft
 
 
 def beat_variance_ratio(rate, data, tolerance=0.1):
-    tempo, beat_frames = lib.beat.beat_track(y=data, sr=rate)
+    try:
+        tempo, beat_frames = lib.beat.beat_track(y=data, sr=rate)
 
-    beat_times = lib.frames_to_time(beat_frames, sr=rate)
+        if len(beat_frames) == 0:
+            return -1
 
-    beat_diffs = np.diff(beat_times)
+        beat_times = lib.frames_to_time(beat_frames, sr=rate)
 
-    mean_diff = np.mean(beat_diffs)
-    upper_lim = mean_diff * 1 + tolerance
-    lower_lim = mean_diff * 1 - tolerance
+        beat_diffs = np.diff(beat_times)
 
-    outside_lim = len([x for x in beat_diffs if lower_lim < x < upper_lim])
-    beat_ratio = 100 - ((outside_lim / len(beat_diffs)) * 100)
+        mean_diff = np.mean(beat_diffs)
+        upper_lim = mean_diff * 1 + tolerance
+        lower_lim = mean_diff * 1 - tolerance
 
-    return beat_ratio
+        outside_lim = len([x for x in beat_diffs if lower_lim < x < upper_lim])
+        beat_ratio = 100 - ((outside_lim / len(beat_diffs)) * 100)
+
+        return beat_ratio
+    except ZeroDivisionError:
+        return -1
 
 
 def silence_ratio(rate, data, tolerance=0.05):
