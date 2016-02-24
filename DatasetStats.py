@@ -27,12 +27,43 @@ def analyse_features():
         print(type(e))
         print(e.args)
 
-    for cat, val in videos.items():
-        print(cat + "\t|\t" + str(val[0]) + "\t|\t" + str(int(val[1]) / val[0]))
+    return videos
+
+
+def analyse_videos_file():
+    datafile = input("Please enter the location of the datafile: \n")
+    # videodata = [[val for val in line.split('\t')] for line in open(datafile) if line]
+
+    vid_stats = {}
+
+    with open(datafile) as f:
+        for line in f:
+            cols = line.split('\t')
+            if len(cols) >= 4:
+                vid_link = cols[0]
+                vid_cat = cols[3]
+                vid_len = int(cols[4])
+
+                if vid_cat in vid_stats:
+                    vid_stats[vid_cat][0] += 1
+                    vid_stats[vid_cat][1] += vid_len
+                else:
+                    vid_stats[vid_cat] = [1, vid_len]
+
+    return vid_stats
+
+
+def print_stats(stats):
+
+    for cat, val in stats.items():
+        print(cat + "\t|\t" + str(val[0]) + "\t|\t" + str(val[1] / val[0]))
 
 
 def main():
-    analyse_features()
+    # print_stats(analyse_features())
+
+    print_stats(analyse_videos_file())
+
 
 if __name__ == "__main__":
     main()
