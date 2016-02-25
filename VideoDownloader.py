@@ -1,8 +1,14 @@
 import youtube_dl
 import numpy as np
+import DatasetStats as dss
+from VideoFeatures import VideoFeatures
 
 
 YT_PREFIX = "https://www.youtube.com/watch?v="
+
+
+def load_classes():
+    return [cl.strip('\n') for cl in open("classes.txt") if cl]
 
 
 def download(v_id, cat, time, dir, options):
@@ -12,12 +18,22 @@ def download(v_id, cat, time, dir, options):
         with youtube_dl.YoutubeDL(options) as ydl:
             ydl.download([v_id])
         print("***Download Complete***")
+        return True
     except:
         print("***Unable to Download***")
+        return False
 
 
 def main():
+    classes = load_classes()
+
     datafile = input("Please enter the location of the datafile: \n")
+    num_vids_per_cat = int(input("Required number of videos per category : \n"))
+
+    print("Loading statistics from existing dataset")
+    stats = dss.analyse_features()
+    dss.print_stats(stats)
+
     videodata = [[val for val in line.split('\t')] for line in open(datafile) if line]
 
     videolinks = np.array([[v[0], v[3], v[4]] for v in videodata if len(v) > 4])
@@ -32,8 +48,20 @@ def main():
     }
 
     for video in videolinks:
-        download(video[0], video[1], video[2], savedir, yt_opts)
+        vid_link = video[0]
+        vid_cat = video[1]
+        vid_len = video[2]
 
+        if vid_cat in classes:
+            if vid_cat not in stats:
+                stats[vid_cat] = [0, 0]
+
+            if stats[vid_cat][0] < num_vids_per_cat:
+                if download(vid_link, vid_cat, vid_len, savedir, yt_opts):
+                    stats[vid_cat][0] += 1
+                    stats[vid_cat][1] += int(vid_len)
+
+    dss.print_stats(stats)
 
 if __name__ == "__main__":
     main()

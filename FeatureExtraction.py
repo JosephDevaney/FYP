@@ -13,7 +13,7 @@ def main():
             while True:
                 try:
                     vid = unpickle.load()
-                    videos[vid.filename] = vid
+                    videos[vid.filename] = vid.rate
                 except EOFError:
                     print("EOF")
                     break
@@ -31,7 +31,7 @@ def main():
                 rate, data = wav.read(path + file)
                 vid = VideoFeatures(rate, data, file)
                 vid.write_to_file(pickler)
-                videos[file] = vid
+                videos[file] = vid.rate
 
     print("Dunzo!")
 

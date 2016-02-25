@@ -5,7 +5,6 @@ import pickle as pkl
 class VideoFeatures:
     def __init__(self, rate, data, filename):
         self.filename = filename
-        cat = filename[:str.index(filename, '_')]
 
         shp = data.shape
 
@@ -38,7 +37,7 @@ class VideoFeatures:
         print("Finished writing {0} to file".format(self.filename))
 
     def get_category_from_name(self):
-        return self.filename[:str.index(self.filename, '_')]
+        return self.filename[:self.filename.index('_')]
 
     def get_length_from_name(self):
         return self.filename[self.filename.rindex('_')+1:self.filename.rindex('.wav')]
