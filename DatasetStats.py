@@ -23,6 +23,10 @@ def analyse_features():
                 except EOFError:
                     print("EOF")
                     break
+                except TypeError:
+                    print("Unable to load object")
+                except pkl.UnpicklingError:
+                    print("Unable to load object2")
     except Exception as e:
         print(type(e))
         print(e.args)
