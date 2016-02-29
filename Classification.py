@@ -2,6 +2,9 @@ from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
 from sklearn import svm
 from sklearn.neighbors import NearestNeighbors
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+
 import numpy as np
 from VideoFeatures import VideoFeatures
 import pickle as pkl
@@ -17,7 +20,7 @@ def get_classifier_from_cmd():
     cls = int(input())
 
     if cls == 1:
-        classifier = tree.DecisionTreeClassifier()
+        classifier = tree.DecisionTreeClassifier(criterion="entropy")
     elif cls == 2:
         # NB
         classifier = GaussianNB()
@@ -39,11 +42,12 @@ def get_feature_choice_cmd():
     print("5. Chromagram")
     print("6. Spectroid")
 
+    start = True
     ftr = int(input())
 
-    path = input("Enter path to features")
+    path = input("Enter path to features: \n")
 
-    features = np.array()
+    features = np.empty(shape=(0, 0))
     classes = []
 
     with open(path + "features.ftr", "rb") as inp:
@@ -64,8 +68,15 @@ def get_feature_choice_cmd():
                 elif ftr == 6:
                     cur_feature = vid.spectroid
 
-                np.vstack((features, cur_feature))
-                classes.append(vid.get_category_from_name())
+                if start:
+                    features = np.array(cur_feature)
+                    # classes = np.array(vid.get_category_from_name())
+                    classes = [vid.get_category_from_name()]
+                    start = False
+                else:
+                    features = np.vstack((features, cur_feature))
+                    # classes = np.append(classes, [vid.get_category_from_name()])
+                    classes.append(vid.get_category_from_name())
 
             except EOFError:
                 print("EOF")
@@ -75,7 +86,8 @@ def get_feature_choice_cmd():
             except pkl.UnpicklingError:
                 print("Unable to load object2")
 
-    targets = np.array(classes)
+    # targets = np.array(classes)
+    targets = classes
 
     return features, targets
 
@@ -85,9 +97,32 @@ def main():
 
     features, targets = get_feature_choice_cmd()
 
-    clf = clf.fit(features[: int(len(features)/10)], targets[: int(len(features)/10)])
-    clf.predict(features[- int(len(features)/10):], targets[- int(len(features)/10):])
+    train_f = features[:-10]
+    train_t = targets[:-10]
+    test_f = features[-10:]
+    test_t = targets[-10:]
 
+    # train_f = features
+    # train_t = targets
+    # test_f = features
+    # test_t = targets
+
+    # clf = clf.fit(features[: int(len(features)/10)], targets[: int(len(features)/10)])
+    # predictions = clf.predict(features[- int(len(features)/10):], targets[- int(len(features)/10):])
+
+    clf = clf.fit(train_f, train_t)
+    predictions = clf.predict(test_f)
+
+    print(test_t, predictions)
+
+    print("Accuracy is : " + str(accuracy_score(test_t, predictions)))
+    print("----------------------------")
+    print("Confusion Matrix: ")
+    print(confusion_matrix(test_t, predictions))
+    print("\n\n")
 
 if __name__ == "__main__":
     main()
+
+# D:\Documents\DT228_4\FYP\Datasets\Test\
+# D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio\
