@@ -41,3 +41,6 @@ class VideoFeatures:
 
     def get_length_from_name(self):
         return self.filename[self.filename.rindex('_')+1:self.filename.rindex('.wav')]
+
+    def get_windowed_fft(self, block_length):
+        return wnl.get_windowed_fft(self.data, block_length)

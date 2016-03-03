@@ -69,3 +69,19 @@ def spec_centroid(rate, data):
 
 def lib_to_mono(data):
     return lib.to_mono(data)
+
+
+def get_windowed_fft(data, block_length):
+    # how many blocks have to be processed?
+    num_blocks = int(np.ceil(len(data) / block_length))
+
+    w_fft = []
+
+    for i in range(0, num_blocks - 1):
+        start = i * block_length
+        stop = np.min([(start + block_length - 1), len(data)])
+
+        f = fft.rfft(data[start:stop])
+        w_fft.append(f.mean())
+
+    return np.asarray(w_fft)
