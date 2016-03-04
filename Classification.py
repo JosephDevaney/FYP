@@ -6,6 +6,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.cross_validation import cross_val_score
+from sklearn.cross_validation import cross_val_predict
 
 import numpy as np
 import scipy.fftpack as fft
@@ -140,9 +141,9 @@ def get_feature_choice_cmd():
 def main():
     clf = get_classifier_from_cmd()
 
-    features, targets = get_feature_choice_cmd()
-
     use_cv = int(input("Enter 1 to use Stratified Kfold CV"))
+
+    features, targets = get_feature_choice_cmd()
 
     numtest = {}
     train_t = []
@@ -186,11 +187,23 @@ def main():
         print(confusion_matrix(test_t, predictions))
         print("\n\n")
     else:
-        skf = StratifiedKFold(targets, n_folds=10)
+        skf = StratifiedKFold(targets, n_folds=5)
+
         result = cross_val_score(clf, features, targets, cv=skf)
 
         print("Accuracy: %0.2f (+/- %0.2f)" % (result.mean(), result.std() * 2))
 
+        preds = cross_val_predict(clf, features, targets, cv=skf)
+        # cor_preds = targets[skf]
+
+        for train_i, test_i in skf:
+            # print("Predicted: " + preds[i] + "\t|\tCorrect Class: " + cor_preds[i])
+            cv_target = [targets[x] for x in test_i]
+            print("Accuracy is : " + str(accuracy_score(cv_target, preds[test_i])))
+            print("----------------------------")
+            print("Confusion Matrix: ")
+            print(confusion_matrix(cv_target, preds[test_i]))
+            print("\n\n")
 
 if __name__ == "__main__":
     main()

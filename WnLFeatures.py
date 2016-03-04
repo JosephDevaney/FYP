@@ -82,6 +82,6 @@ def get_windowed_fft(data, block_length):
         stop = np.min([(start + block_length - 1), len(data)])
 
         f = fft.rfft(data[start:stop])
-        w_fft.append(f.mean())
+        w_fft.append(f.var())
 
     return np.asarray(w_fft)
