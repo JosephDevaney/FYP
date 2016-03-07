@@ -14,6 +14,8 @@ from VideoFeatures import VideoFeatures
 import pickle as pkl
 
 CONF_FILE = "config.txt"
+REG_FEATS = "features.ftr"
+SHORT_FEATS = "features30sec.ftr"
 
 
 def get_classifier_from_cmd(cls=None):
@@ -51,7 +53,7 @@ def get_feature_choice_cmd(ftr=None, path=None):
         print("6. Spectroid")
         print("7. FFT average over 1s window")
 
-        ftr = int(input())
+        ftr = input()
         ftr = [int(x) for x in ftr.split('|')]
 
     if path is None:
@@ -62,9 +64,9 @@ def get_feature_choice_cmd(ftr=None, path=None):
     # features = np.empty(shape=(0, 0))
     features = {}
     f_max_len = 0
-    classes = {}
+    classes = []
 
-    with open(path + "features.ftr", "rb") as inp:
+    with open(path + SHORT_FEATS, "rb") as inp:
         unpickle = pkl.Unpickler(inp)
         while True:
             try:
@@ -75,7 +77,7 @@ def get_feature_choice_cmd(ftr=None, path=None):
                 if 2 in ftr:
                     cur_feature[2] = vid.silence_ratio
                 if 3 in ftr:
-                    cur_feature[3] = vid.mfcc
+                    cur_feature[3] = np.array(vid.mfcc).reshape((1, -1))[0]
                 if 4 in ftr:
                     cur_feature[4] = vid.mfcc_delta
                 if 5 in ftr:
@@ -88,8 +90,6 @@ def get_feature_choice_cmd(ftr=None, path=None):
                 if start:
                     for i in ftr:
                         features[i] = np.array([cur_feature[i]])
-                        # classes = np.array(vid.get_category_from_name())
-                        classes[i] = [vid.get_category_from_name()]
 
                         f_shape = features[i].shape
                         if hasattr(cur_feature[i], "__len__"):
@@ -99,6 +99,8 @@ def get_feature_choice_cmd(ftr=None, path=None):
                                 f_max_len = len(f_shape)
 
                     start = False
+                    # classes = np.array(vid.get_category_from_name())
+                    classes = [vid.get_category_from_name()]
 
                 else:
                     for i in ftr:
@@ -137,8 +139,8 @@ def get_feature_choice_cmd(ftr=None, path=None):
                                                             mode="constant")
 
                         features[i] = np.vstack((features[i], [cur_feature[i]]))
-                        # classes = np.append(classes, [vid.get_category_from_name()])
-                        classes[i].append(vid.get_category_from_name())
+                    # classes = np.append(classes, [vid.get_category_from_name()])
+                    classes.append(vid.get_category_from_name())
 
                         # TODO:
                         # Hstack all features per instance
@@ -151,10 +153,13 @@ def get_feature_choice_cmd(ftr=None, path=None):
             except pkl.UnpicklingError:
                 print("Unable to load object2")
 
+    total_feature = features[ftr[0]]
+    for i in range(1, len(ftr)):
+        total_feature = np.hstack((total_feature, features[ftr[i]]))
     # targets = np.array(classes)
     targets = classes
 
-    return features, targets
+    return total_feature, targets
 
 
 def main():
@@ -239,4 +244,4 @@ if __name__ == "__main__":
     main()
 
 # D:\Documents\DT228_4\FYP\Datasets\Test\
-# D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio
+# D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio\

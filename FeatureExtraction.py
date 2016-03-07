@@ -3,12 +3,13 @@ import scipy.io.wavfile as wav
 import pickle as pkl
 from VideoFeatures import VideoFeatures
 
+FTR_NAME = "features30sec.ftr"
 
 def main():
     path = input("Enter the filepath here: \n")
     videos = {}
     try:
-        with open(path + "features.ftr", "rb") as inp:
+        with open(path + FTR_NAME, "rb") as inp:
             unpickle = pkl.Unpickler(inp)
             while True:
                 try:
@@ -22,7 +23,7 @@ def main():
         print(e.args)
 
     # rate, data = wav.read(file)
-    with open(path + "features.ftr", "ab") as output:
+    with open(path + FTR_NAME, "ab") as output:
         pickler = pkl.Pickler(output, -1)
         # [videos.update({file: VideoFeatures(wav.read(path + file), file).write_to_file(pickler)})
         #  for file in os.listdir(path) if file.endswith('.wav') and file not in videos]
