@@ -12,6 +12,7 @@ import numpy as np
 import scipy.fftpack as fft
 from VideoFeatures import VideoFeatures
 import pickle as pkl
+import time
 
 CONF_FILE = "config.txt"
 REG_FEATS = "features.ftr"
@@ -166,6 +167,7 @@ def main():
     clf_choice = None
     ftr_choice = None
     path = None
+    opts = []
     try:
         opts = [line.strip('\n') for line in open(CONF_FILE)]
         clf_choice = int(opts[0])
@@ -225,7 +227,14 @@ def main():
 
         result = cross_val_score(clf, features, targets, cv=skf)
 
-        print("Accuracy: %0.2f (+/- %0.2f)" % (result.mean(), result.std() * 2))
+        filename = time.strftime("%Y_%m_%d__%H_%M_%S", time.gmtime()) + '.txt'
+        savefile = open(filename, 'w+')
+
+        if opts is not []:
+            savefile.write("Options for this experiment are as follows: \n")
+            savefile.write(str(opts) + '\n\n')
+
+        savefile.write("Total Accuracy: %0.2f (+/- %0.2f)\n\n" % (result.mean(), result.std() * 2))
 
         preds = cross_val_predict(clf, features, targets, cv=skf)
         # cor_preds = targets[skf]
@@ -233,11 +242,21 @@ def main():
         for train_i, test_i in skf:
             # print("Predicted: " + preds[i] + "\t|\tCorrect Class: " + cor_preds[i])
             cv_target = [targets[x] for x in test_i]
-            print("Accuracy is : " + str(accuracy_score(cv_target, preds[test_i])))
-            print("----------------------------")
-            print("Confusion Matrix: ")
-            print(confusion_matrix(cv_target, preds[test_i]))
-            print("\n\n")
+            cm = confusion_matrix(cv_target, preds[test_i])
+            acc = str(accuracy_score(cv_target, preds[test_i]))
+
+            savefile.write("Accuracy is : " + acc)
+            savefile.write("\n----------------------------\n")
+            savefile.write("Confusion Matrix: \n")
+            savefile.write(str(cm))
+            savefile.write('\n\n')
+
+            savefile.write("%-25s %s\n" % ("Target", "Prediction"))
+            savefile.write("----------------------------------\n")
+            [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(cv_target, preds[test_i])]
+            savefile.write('\n\n')
+
+        savefile.close()
 
 
 if __name__ == "__main__":
