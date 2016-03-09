@@ -4,6 +4,7 @@ from sklearn import svm
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import cross_val_predict
@@ -43,7 +44,7 @@ def get_classifier_from_cmd(cls=None):
     return classifier
 
 
-def get_feature_choice_cmd(ftr=None, path=None):
+def get_feature_choice_cmd(ftr=None, path=None, cls=None):
     if ftr is None:
         print("Please select the feature (Separated by | for multiple):")
         print("1. Beat Variance Ratio")
@@ -60,6 +61,10 @@ def get_feature_choice_cmd(ftr=None, path=None):
     if path is None:
         path = input("Enter path to features: \n")
 
+    if cls is None:
+        cls = ["Entertainment", "Music", "Comedy", "Film & Animation", "News & Politics", "Sports", "People & Blogs",
+               "Howto & Style", "Pets & Animals"]
+
     start = True
 
     # features = np.empty(shape=(0, 0))
@@ -73,78 +78,76 @@ def get_feature_choice_cmd(ftr=None, path=None):
             try:
                 cur_feature = {}
                 vid = unpickle.load()
-                if 1 in ftr:
-                    cur_feature[1] = vid.bvratio
-                if 2 in ftr:
-                    cur_feature[2] = vid.silence_ratio
-                if 3 in ftr:
-                    cur_feature[3] = np.array(vid.mfcc).reshape((1, -1))[0]
-                if 4 in ftr:
-                    cur_feature[4] = vid.mfcc_delta
-                if 5 in ftr:
-                    cur_feature[5] = vid.chromagram
-                if 6 in ftr:
-                    cur_feature[6] = vid.spectroid
-                if 7 in ftr:
-                    cur_feature[7] = vid.get_windowed_fft(vid.rate)
+                if vid.get_category_from_name() in cls:
+                    if 1 in ftr:
+                        cur_feature[1] = vid.bvratio
+                    if 2 in ftr:
+                        cur_feature[2] = vid.silence_ratio
+                    if 3 in ftr:
+                        cur_feature[3] = np.array(vid.mfcc).reshape((1, -1))[0]
+                    if 4 in ftr:
+                        cur_feature[4] = vid.mfcc_delta
+                    if 5 in ftr:
+                        cur_feature[5] = vid.chromagram
+                    if 6 in ftr:
+                        cur_feature[6] = vid.spectroid
+                    if 7 in ftr:
+                        cur_feature[7] = vid.get_windowed_fft(vid.rate)
 
-                if start:
-                    for i in ftr:
-                        features[i] = np.array([cur_feature[i]])
+                    if start:
+                        for i in ftr:
+                            features[i] = np.array([cur_feature[i]])
 
-                        f_shape = features[i].shape
-                        if hasattr(cur_feature[i], "__len__"):
-                            if len(f_shape) > 1:
-                                f_max_len = f_shape[1]
-                            else:
-                                f_max_len = len(f_shape)
+                            f_shape = features[i].shape
+                            if hasattr(cur_feature[i], "__len__"):
+                                if len(f_shape) > 1:
+                                    f_max_len = f_shape[1]
+                                else:
+                                    f_max_len = len(f_shape)
 
-                    start = False
-                    # classes = np.array(vid.get_category_from_name())
-                    classes = [vid.get_category_from_name()]
+                        start = False
+                        # classes = np.array(vid.get_category_from_name())
+                        classes = [vid.get_category_from_name()]
 
-                else:
-                    for i in ftr:
-                        if hasattr(cur_feature[i], "__len__"):
-                            if len(cur_feature[i].shape) > 1:
-                                if cur_feature[i].shape[1] > f_max_len:
-                                    if len(features[i].shape) > 1:
-                                        features[i] = np.pad(features[i],
-                                                             ((0, 0), (0, cur_feature[i].shape[1] - f_max_len)),
-                                                             mode="constant")
-                                        f_max_len = cur_feature[i].shape[1]
-                                    else:
-                                        features[i] = np.pad(features[i], (0, cur_feature[i].shape[1] - f_max_len),
-                                                             mode="constant")
-                                        f_max_len = cur_feature[i].shape[1]
+                    else:
+                        for i in ftr:
+                            if hasattr(cur_feature[i], "__len__"):
+                                if len(cur_feature[i].shape) > 1:
+                                    if cur_feature[i].shape[1] > f_max_len:
+                                        if len(features[i].shape) > 1:
+                                            features[i] = np.pad(features[i],
+                                                                 ((0, 0), (0, cur_feature[i].shape[1] - f_max_len)),
+                                                                 mode="constant")
+                                            f_max_len = cur_feature[i].shape[1]
+                                        else:
+                                            features[i] = np.pad(features[i], (0, cur_feature[i].shape[1] - f_max_len),
+                                                                 mode="constant")
+                                            f_max_len = cur_feature[i].shape[1]
 
-                                elif cur_feature[i].shape[1] < f_max_len:
-                                    cur_feature[i] = np.pad(cur_feature[i],
-                                                            ((0, 0), (0, f_max_len - cur_feature[i].shape[1])),
-                                                            mode="constant")
+                                    elif cur_feature[i].shape[1] < f_max_len:
+                                        cur_feature[i] = np.pad(cur_feature[i],
+                                                                ((0, 0), (0, f_max_len - cur_feature[i].shape[1])),
+                                                                mode="constant")
 
-                            elif len(cur_feature[i].shape) == 1:
-                                if cur_feature[i].shape[0] > f_max_len:
-                                    if len(features[i].shape) > 1:
-                                        features[i] = np.pad(features[i],
-                                                             ((0, 0), (0, cur_feature[i].shape[0] - f_max_len)),
-                                                             mode="constant")
-                                        f_max_len = cur_feature[i].shape[0]
-                                    else:
-                                        features[i] = np.pad(features[i], (0, cur_feature[i].shape[0] - f_max_len),
-                                                             mode="constant")
-                                        f_max_len = cur_feature[i].shape[0]
+                                elif len(cur_feature[i].shape) == 1:
+                                    if cur_feature[i].shape[0] > f_max_len:
+                                        if len(features[i].shape) > 1:
+                                            features[i] = np.pad(features[i],
+                                                                 ((0, 0), (0, cur_feature[i].shape[0] - f_max_len)),
+                                                                 mode="constant")
+                                            f_max_len = cur_feature[i].shape[0]
+                                        else:
+                                            features[i] = np.pad(features[i], (0, cur_feature[i].shape[0] - f_max_len),
+                                                                 mode="constant")
+                                            f_max_len = cur_feature[i].shape[0]
 
-                                elif cur_feature[i].shape[0] < f_max_len:
-                                    cur_feature[i] = np.pad(cur_feature[i], (0, f_max_len - cur_feature[i].shape[0]),
-                                                            mode="constant")
+                                    elif cur_feature[i].shape[0] < f_max_len:
+                                        cur_feature[i] = np.pad(cur_feature[i], (0, f_max_len - cur_feature[i].shape[0]),
+                                                                mode="constant")
 
-                        features[i] = np.vstack((features[i], [cur_feature[i]]))
-                    # classes = np.append(classes, [vid.get_category_from_name()])
-                    classes.append(vid.get_category_from_name())
-
-                        # TODO:
-                        # Hstack all features per instance
+                            features[i] = np.vstack((features[i], [cur_feature[i]]))
+                        # classes = np.append(classes, [vid.get_category_from_name()])
+                        classes.append(vid.get_category_from_name())
 
             except EOFError:
                 print("EOF")
@@ -168,18 +171,20 @@ def main():
     ftr_choice = None
     path = None
     opts = []
+    cls_choice = []
     try:
         opts = [line.strip('\n') for line in open(CONF_FILE)]
         clf_choice = int(opts[0])
         use_cv = int(opts[1])
         ftr_choice = [int(x) for x in opts[2].split('|')]
         path = opts[3]
+        cls_choice = [x for x in opts[4].split('|')]
     except FileNotFoundError:
         use_cv = int(input("Enter 1 to use Stratified Kfold CV: \n"))
 
     clf = get_classifier_from_cmd(clf_choice)
 
-    features, targets = get_feature_choice_cmd(ftr=ftr_choice, path=path)
+    features, targets = get_feature_choice_cmd(ftr=ftr_choice, path=path, cls=cls_choice)
 
     numtest = {}
     train_t = []
@@ -239,10 +244,21 @@ def main():
         preds = cross_val_predict(clf, features, targets, cv=skf)
         # cor_preds = targets[skf]
 
+        start_cls = True
+
+        total_targets = []
+        total_preds = []
         for train_i, test_i in skf:
             # print("Predicted: " + preds[i] + "\t|\tCorrect Class: " + cor_preds[i])
             cv_target = [targets[x] for x in test_i]
             cm = confusion_matrix(cv_target, preds[test_i])
+            if start_cls:
+                total_confusion = cm
+                start_cls = False
+            else:
+                total_confusion += cm
+            total_targets.extend(cv_target)
+            total_preds.extend(preds[test_i])
             acc = str(accuracy_score(cv_target, preds[test_i]))
 
             savefile.write("Accuracy is : " + acc)
@@ -256,6 +272,16 @@ def main():
             [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(cv_target, preds[test_i])]
             savefile.write('\n\n')
 
+        savefile.write("Summed CMs\n--------------------\n")
+        savefile.write(str(total_confusion))
+        savefile.write("\n\nFinal CM from aggregate targets\n-----------------------------")
+        savefile.write(str(confusion_matrix(total_targets, total_preds)))
+
+        unique_cls = []
+        [unique_cls.append(x) for x in total_targets if x not in unique_cls]
+
+        savefile.write("\n\nREPORT!!!\n-----------------------------------\n")
+        savefile.write(classification_report(total_targets, total_preds))
         savefile.close()
 
 
