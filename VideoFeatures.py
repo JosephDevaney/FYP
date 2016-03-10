@@ -45,3 +45,6 @@ class VideoFeatures:
 
     def get_windowed_fft(self, block_length):
         return wnl.get_windowed_fft(self.data, block_length)
+
+    def get_windowed_zcr(self, block_length):
+        return wnl.get_windowed_zcr(self.data, block_length)

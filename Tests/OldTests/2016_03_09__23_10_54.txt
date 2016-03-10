@@ -1,0 +1,98 @@
+Options for this experiment are as follows: 
+['1', '1', '7|8', '0.04', 'D:\\Documents\\DT228_4\\FYP\\Datasets\\080327\\0_Audio\\', 'Music|Comedy']
+
+Total Accuracy: 0.65 (+/- 0.05)
+
+Accuracy is : 0.625
+----------------------------
+Confusion Matrix: 
+[[3 4]
+ [2 7]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    Comedy
+Comedy                    Music
+Comedy                    Music
+Comedy                    Music
+Comedy                    Comedy
+Comedy                    Comedy
+Comedy                    Music
+Music                     Music
+Music                     Comedy
+Music                     Music
+Music                     Music
+Music                     Music
+Music                     Comedy
+Music                     Music
+Music                     Music
+Music                     Music
+
+
+Accuracy is : 0.5625
+----------------------------
+Confusion Matrix: 
+[[2 5]
+ [2 7]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    Music
+Comedy                    Music
+Comedy                    Music
+Comedy                    Music
+Comedy                    Comedy
+Comedy                    Music
+Comedy                    Comedy
+Music                     Comedy
+Music                     Comedy
+Music                     Music
+Music                     Music
+Music                     Music
+Music                     Music
+Music                     Music
+Music                     Music
+Music                     Music
+
+
+Accuracy is : 0.571428571429
+----------------------------
+Confusion Matrix: 
+[[2 4]
+ [2 6]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    Music
+Comedy                    Music
+Comedy                    Music
+Comedy                    Comedy
+Comedy                    Music
+Comedy                    Comedy
+Music                     Music
+Music                     Comedy
+Music                     Comedy
+Music                     Music
+Music                     Music
+Music                     Music
+Music                     Music
+Music                     Music
+
+
+Summed CMs
+--------------------
+[[ 7 13]
+ [ 6 20]]
+
+Final CM from aggregate targets
+-----------------------------[[ 7 13]
+ [ 6 20]]
+
+REPORT!!!
+-----------------------------------
+             precision    recall  f1-score   support
+
+     Comedy       0.54      0.35      0.42        20
+      Music       0.61      0.77      0.68        26
+
+avg / total       0.58      0.59      0.57        46

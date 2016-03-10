@@ -77,11 +77,41 @@ def get_windowed_fft(data, block_length):
 
     w_fft = []
 
-    for i in range(0, num_blocks - 1):
+    if num_blocks == 1:
+        w_fft = fft.rfft(data)
+    else:
+        for i in range(0, num_blocks):
+            start = i * block_length
+            stop = np.min([(start + block_length - 1), len(data)])
+
+            f = fft.rfft(data[start:stop])
+            w_fft.append(f.var())
+
+    return np.asarray(w_fft)
+
+
+def get_windowed_zcr(data, block_length):
+    num_blocks = int(np.ceil(len(data) / block_length))
+
+    w_zcr = []
+
+    for i in range (0, num_blocks - 1):
         start = i * block_length
         stop = np.min([(start + block_length - 1), len(data)])
 
-        f = fft.rfft(data[start:stop])
-        w_fft.append(f.var())
+        zcr = lib.zero_crossings(data[start:stop])
+        w_zcr.append(len(zcr))
 
-    return np.asarray(w_fft)
+    return np.asarray(w_zcr)
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,358 @@
+Options for this experiment are as follows: 
+['1', '1', '7|8', 'D:\\Documents\\DT228_4\\FYP\\Datasets\\080327\\0_Audio\\', 'Entertainment|Music|Comedy|Film & Animation|News & Politics|Sports|People & Blogs|Howto & Style|Pets & Animals']
+
+Total Accuracy: 0.16 (+/- 0.07)
+
+Accuracy is : 0.0612244897959
+----------------------------
+Confusion Matrix: 
+[[0 1 1 0 1 0 1 0 0]
+ [0 0 0 2 0 2 1 0 1]
+ [0 1 0 0 1 0 2 0 0]
+ [0 2 0 0 0 1 0 0 1]
+ [0 2 0 1 0 0 0 1 2]
+ [0 1 1 1 1 1 0 1 1]
+ [0 1 2 0 2 1 0 1 0]
+ [0 0 0 2 1 1 0 0 1]
+ [0 1 0 0 0 2 0 1 2]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    Film & Animation
+Comedy                    Entertainment
+Comedy                    People & Blogs
+Comedy                    Music
+Entertainment             People & Blogs
+Entertainment             Sports
+Entertainment             News & Politics
+Entertainment             News & Politics
+Entertainment             Howto & Style
+Entertainment             Howto & Style
+Film & Animation          Music
+Film & Animation          People & Blogs
+Film & Animation          Entertainment
+Film & Animation          People & Blogs
+Howto & Style             Entertainment
+Howto & Style             News & Politics
+Howto & Style             Sports
+Howto & Style             Entertainment
+Music                     Sports
+Music                     Pets & Animals
+Music                     Howto & Style
+Music                     Entertainment
+Music                     Sports
+Music                     Entertainment
+News & Politics           Music
+News & Politics           Film & Animation
+News & Politics           News & Politics
+News & Politics           Entertainment
+News & Politics           Pets & Animals
+News & Politics           Howto & Style
+News & Politics           Sports
+People & Blogs            Film & Animation
+People & Blogs            Music
+People & Blogs            Film & Animation
+People & Blogs            Pets & Animals
+People & Blogs            Entertainment
+People & Blogs            Music
+People & Blogs            News & Politics
+Pets & Animals            Howto & Style
+Pets & Animals            News & Politics
+Pets & Animals            Howto & Style
+Pets & Animals            Sports
+Pets & Animals            Music
+Sports                    Sports
+Sports                    Entertainment
+Sports                    Pets & Animals
+Sports                    News & Politics
+Sports                    News & Politics
+Sports                    Sports
+
+
+Accuracy is : 0.148936170213
+----------------------------
+Confusion Matrix: 
+[[0 1 0 0 1 0 0 1 1]
+ [1 2 0 0 0 2 0 1 0]
+ [0 1 1 1 0 0 1 0 0]
+ [0 0 1 0 1 0 1 0 1]
+ [0 1 1 0 2 0 1 0 0]
+ [1 2 0 1 0 0 1 1 1]
+ [1 0 2 2 0 0 1 0 1]
+ [0 1 0 0 3 0 0 1 0]
+ [0 3 0 1 0 0 1 0 0]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    Entertainment
+Comedy                    Pets & Animals
+Comedy                    Music
+Comedy                    Sports
+Entertainment             Pets & Animals
+Entertainment             News & Politics
+Entertainment             Entertainment
+Entertainment             Entertainment
+Entertainment             Comedy
+Entertainment             News & Politics
+Film & Animation          Howto & Style
+Film & Animation          Entertainment
+Film & Animation          Film & Animation
+Film & Animation          People & Blogs
+Howto & Style             Music
+Howto & Style             Film & Animation
+Howto & Style             Sports
+Howto & Style             People & Blogs
+Music                     Entertainment
+Music                     Music
+Music                     People & Blogs
+Music                     Music
+Music                     Film & Animation
+News & Politics           Comedy
+News & Politics           Sports
+News & Politics           Pets & Animals
+News & Politics           Entertainment
+News & Politics           Howto & Style
+News & Politics           People & Blogs
+News & Politics           Entertainment
+People & Blogs            People & Blogs
+People & Blogs            Film & Animation
+People & Blogs            Howto & Style
+People & Blogs            Howto & Style
+People & Blogs            Sports
+People & Blogs            Film & Animation
+People & Blogs            Comedy
+Pets & Animals            Music
+Pets & Animals            Music
+Pets & Animals            Entertainment
+Pets & Animals            Pets & Animals
+Pets & Animals            Music
+Sports                    People & Blogs
+Sports                    Entertainment
+Sports                    Entertainment
+Sports                    Entertainment
+Sports                    Howto & Style
+
+
+Accuracy is : 0.148936170213
+----------------------------
+Confusion Matrix: 
+[[0 0 0 0 0 2 1 1 0]
+ [0 1 0 0 0 1 1 1 2]
+ [0 1 0 0 0 0 0 1 2]
+ [0 0 0 2 1 0 0 0 1]
+ [0 0 2 0 2 0 0 0 1]
+ [0 1 0 1 1 2 1 0 1]
+ [1 2 1 1 1 0 0 1 0]
+ [0 0 0 0 1 0 3 0 1]
+ [0 1 0 0 1 0 3 0 0]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    News & Politics
+Comedy                    People & Blogs
+Comedy                    Pets & Animals
+Comedy                    News & Politics
+Entertainment             Sports
+Entertainment             Entertainment
+Entertainment             News & Politics
+Entertainment             People & Blogs
+Entertainment             Pets & Animals
+Entertainment             Sports
+Film & Animation          Sports
+Film & Animation          Pets & Animals
+Film & Animation          Entertainment
+Film & Animation          Sports
+Howto & Style             Music
+Howto & Style             Howto & Style
+Howto & Style             Sports
+Howto & Style             Howto & Style
+Music                     Music
+Music                     Film & Animation
+Music                     Film & Animation
+Music                     Music
+Music                     Sports
+News & Politics           Howto & Style
+News & Politics           Sports
+News & Politics           News & Politics
+News & Politics           News & Politics
+News & Politics           Entertainment
+News & Politics           Music
+News & Politics           People & Blogs
+People & Blogs            Howto & Style
+People & Blogs            Entertainment
+People & Blogs            Entertainment
+People & Blogs            Pets & Animals
+People & Blogs            Comedy
+People & Blogs            Film & Animation
+People & Blogs            Music
+Pets & Animals            People & Blogs
+Pets & Animals            People & Blogs
+Pets & Animals            People & Blogs
+Pets & Animals            Sports
+Pets & Animals            Music
+Sports                    People & Blogs
+Sports                    People & Blogs
+Sports                    People & Blogs
+Sports                    Music
+Sports                    Entertainment
+
+
+Accuracy is : 0.227272727273
+----------------------------
+Confusion Matrix: 
+[[0 0 1 0 0 1 1 0 1]
+ [0 0 0 0 0 1 1 0 3]
+ [1 1 0 0 0 1 1 0 0]
+ [0 0 0 2 1 0 0 1 0]
+ [0 0 0 0 0 1 1 0 3]
+ [0 0 0 0 0 3 2 0 1]
+ [1 0 1 2 1 0 2 0 0]
+ [0 1 0 1 0 1 0 1 0]
+ [1 0 0 0 0 1 1 0 2]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    People & Blogs
+Comedy                    Sports
+Comedy                    News & Politics
+Comedy                    Film & Animation
+Entertainment             Sports
+Entertainment             Sports
+Entertainment             People & Blogs
+Entertainment             News & Politics
+Entertainment             Sports
+Film & Animation          News & Politics
+Film & Animation          People & Blogs
+Film & Animation          Comedy
+Film & Animation          Entertainment
+Howto & Style             Howto & Style
+Howto & Style             Pets & Animals
+Howto & Style             Music
+Howto & Style             Howto & Style
+Music                     Sports
+Music                     News & Politics
+Music                     Sports
+Music                     Sports
+Music                     People & Blogs
+News & Politics           Sports
+News & Politics           People & Blogs
+News & Politics           News & Politics
+News & Politics           News & Politics
+News & Politics           News & Politics
+News & Politics           People & Blogs
+People & Blogs            Music
+People & Blogs            Howto & Style
+People & Blogs            People & Blogs
+People & Blogs            Howto & Style
+People & Blogs            Film & Animation
+People & Blogs            Comedy
+People & Blogs            People & Blogs
+Pets & Animals            Entertainment
+Pets & Animals            Pets & Animals
+Pets & Animals            News & Politics
+Pets & Animals            Howto & Style
+Sports                    News & Politics
+Sports                    Sports
+Sports                    Comedy
+Sports                    Sports
+Sports                    People & Blogs
+
+
+Accuracy is : 0.162790697674
+----------------------------
+Confusion Matrix: 
+[[1 0 0 0 0 0 3 0 0]
+ [1 0 1 0 1 1 1 0 0]
+ [0 0 0 0 0 1 2 0 1]
+ [0 0 0 1 0 1 2 0 0]
+ [0 0 0 0 2 1 1 0 1]
+ [1 0 0 0 1 1 0 2 1]
+ [0 0 0 0 2 1 2 0 1]
+ [1 0 0 0 1 0 1 0 1]
+ [1 0 0 0 2 0 0 2 0]]
+
+Target                    Prediction
+----------------------------------
+Comedy                    Comedy
+Comedy                    People & Blogs
+Comedy                    People & Blogs
+Comedy                    People & Blogs
+Entertainment             News & Politics
+Entertainment             Film & Animation
+Entertainment             Music
+Entertainment             People & Blogs
+Entertainment             Comedy
+Film & Animation          Sports
+Film & Animation          News & Politics
+Film & Animation          People & Blogs
+Film & Animation          People & Blogs
+Howto & Style             Howto & Style
+Howto & Style             People & Blogs
+Howto & Style             People & Blogs
+Howto & Style             News & Politics
+Music                     Music
+Music                     People & Blogs
+Music                     News & Politics
+Music                     Music
+Music                     Sports
+News & Politics           Comedy
+News & Politics           Pets & Animals
+News & Politics           Music
+News & Politics           Pets & Animals
+News & Politics           News & Politics
+News & Politics           Sports
+People & Blogs            Music
+People & Blogs            People & Blogs
+People & Blogs            Music
+People & Blogs            People & Blogs
+People & Blogs            News & Politics
+People & Blogs            Sports
+Pets & Animals            Sports
+Pets & Animals            Music
+Pets & Animals            Comedy
+Pets & Animals            People & Blogs
+Sports                    Music
+Sports                    Pets & Animals
+Sports                    Pets & Animals
+Sports                    Music
+Sports                    Comedy
+
+
+Summed CMs
+--------------------
+[[1 2 2 0 2 3 6 2 2]
+ [2 3 1 2 1 7 4 2 6]
+ [1 4 1 1 1 2 6 1 3]
+ [0 2 1 5 3 2 3 1 3]
+ [0 3 3 1 6 2 3 1 7]
+ [2 4 1 3 3 7 4 4 5]
+ [3 3 6 5 6 2 5 2 2]
+ [1 2 0 3 6 2 4 2 3]
+ [2 5 0 1 3 3 5 3 4]]
+
+Final CM from aggregate targets
+-----------------------------[[1 2 2 0 2 3 6 2 2]
+ [2 3 1 2 1 7 4 2 6]
+ [1 4 1 1 1 2 6 1 3]
+ [0 2 1 5 3 2 3 1 3]
+ [0 3 3 1 6 2 3 1 7]
+ [2 4 1 3 3 7 4 4 5]
+ [3 3 6 5 6 2 5 2 2]
+ [1 2 0 3 6 2 4 2 3]
+ [2 5 0 1 3 3 5 3 4]]
+
+REPORT!!!
+-----------------------------------
+             precision    recall  f1-score   support
+
+     Comedy       0.08      0.05      0.06        20
+Entertainment       0.11      0.11      0.11        28
+Film & Animation       0.07      0.05      0.06        20
+Howto & Style       0.24      0.25      0.24        20
+      Music       0.19      0.23      0.21        26
+News & Politics       0.23      0.21      0.22        33
+People & Blogs       0.12      0.15      0.14        34
+Pets & Animals       0.11      0.09      0.10        23
+     Sports       0.11      0.15      0.13        26
+
+avg / total       0.14      0.15      0.14       230

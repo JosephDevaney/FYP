@@ -44,7 +44,7 @@ def get_classifier_from_cmd(cls=None):
     return classifier
 
 
-def get_feature_choice_cmd(ftr=None, path=None, cls=None):
+def get_feature_choice_cmd(ftr=None, path=None, cls=None, win_len=None):
     if ftr is None:
         print("Please select the feature (Separated by | for multiple):")
         print("1. Beat Variance Ratio")
@@ -54,6 +54,7 @@ def get_feature_choice_cmd(ftr=None, path=None, cls=None):
         print("5. Chromagram")
         print("6. Spectroid")
         print("7. FFT average over 1s window")
+        print("8. ZCR over window")
 
         ftr = input()
         ftr = [int(x) for x in ftr.split('|')]
@@ -64,7 +65,8 @@ def get_feature_choice_cmd(ftr=None, path=None, cls=None):
     if cls is None:
         cls = ["Entertainment", "Music", "Comedy", "Film & Animation", "News & Politics", "Sports", "People & Blogs",
                "Howto & Style", "Pets & Animals"]
-
+    if win_len is None:
+        win_len = 0.04
     start = True
 
     # features = np.empty(shape=(0, 0))
@@ -92,7 +94,9 @@ def get_feature_choice_cmd(ftr=None, path=None, cls=None):
                     if 6 in ftr:
                         cur_feature[6] = vid.spectroid
                     if 7 in ftr:
-                        cur_feature[7] = vid.get_windowed_fft(vid.rate)
+                        cur_feature[7] = vid.get_windowed_fft(int(np.ceil(vid.rate * win_len)))
+                    if 8 in ftr:
+                        cur_feature[8] = vid.get_windowed_zcr(int(np.ceil(vid.rate * win_len)))
 
                     if start:
                         for i in ftr:
@@ -169,6 +173,7 @@ def get_feature_choice_cmd(ftr=None, path=None, cls=None):
 def main():
     clf_choice = None
     ftr_choice = None
+    win_len = None
     path = None
     opts = []
     cls_choice = []
@@ -177,14 +182,15 @@ def main():
         clf_choice = int(opts[0])
         use_cv = int(opts[1])
         ftr_choice = [int(x) for x in opts[2].split('|')]
-        path = opts[3]
-        cls_choice = [x for x in opts[4].split('|')]
+        win_len = float(opts[3])
+        path = opts[4]
+        cls_choice = [x for x in opts[5].split('|')]
     except FileNotFoundError:
         use_cv = int(input("Enter 1 to use Stratified Kfold CV: \n"))
 
     clf = get_classifier_from_cmd(clf_choice)
 
-    features, targets = get_feature_choice_cmd(ftr=ftr_choice, path=path, cls=cls_choice)
+    features, targets = get_feature_choice_cmd(ftr=ftr_choice, path=path, cls=cls_choice, win_len=win_len)
 
     numtest = {}
     train_t = []
@@ -228,11 +234,11 @@ def main():
         print(confusion_matrix(test_t, predictions))
         print("\n\n")
     else:
-        skf = StratifiedKFold(targets, n_folds=5)
+        skf = StratifiedKFold(targets, n_folds=3)
 
         result = cross_val_score(clf, features, targets, cv=skf)
 
-        filename = time.strftime("%Y_%m_%d__%H_%M_%S", time.gmtime()) + '.txt'
+        filename = time.strftime("Tests\\%Y_%m_%d__%H_%M_%S", time.gmtime()) + '.txt'
         savefile = open(filename, 'w+')
 
         if opts is not []:
@@ -261,16 +267,16 @@ def main():
             total_preds.extend(preds[test_i])
             acc = str(accuracy_score(cv_target, preds[test_i]))
 
-            savefile.write("Accuracy is : " + acc)
-            savefile.write("\n----------------------------\n")
-            savefile.write("Confusion Matrix: \n")
-            savefile.write(str(cm))
-            savefile.write('\n\n')
-
-            savefile.write("%-25s %s\n" % ("Target", "Prediction"))
-            savefile.write("----------------------------------\n")
-            [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(cv_target, preds[test_i])]
-            savefile.write('\n\n')
+            # savefile.write("Accuracy is : " + acc)
+            # savefile.write("\n----------------------------\n")
+            # savefile.write("Confusion Matrix: \n")
+            # savefile.write(str(cm))
+            # savefile.write('\n\n')
+            #
+            # savefile.write("%-25s %s\n" % ("Target", "Prediction"))
+            # savefile.write("----------------------------------\n")
+            # [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(cv_target, preds[test_i])]
+            # savefile.write('\n\n')
 
         savefile.write("Summed CMs\n--------------------\n")
         savefile.write(str(total_confusion))
@@ -282,6 +288,12 @@ def main():
 
         savefile.write("\n\nREPORT!!!\n-----------------------------------\n")
         savefile.write(classification_report(total_targets, total_preds))
+
+        savefile.write("%-25s %s\n" % ("Target", "Prediction"))
+        savefile.write("----------------------------------\n")
+        [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(total_targets, total_preds)]
+        savefile.write('\n\n')
+
         savefile.close()
 
 
