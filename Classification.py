@@ -46,7 +46,7 @@ def get_classifier_from_cmd(cls=None):
     return classifier
 
 
-def get_feature_choice_cmd(ftr=None, path=None, cls=None, win_len=None):
+def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=None):
     if ftr is None:
         print("Please select the feature (Separated by | for multiple):")
         print("1. Beat Variance Ratio")
@@ -59,7 +59,9 @@ def get_feature_choice_cmd(ftr=None, path=None, cls=None, win_len=None):
         print("8. ZCR over window")
 
         ftr = input()
-        ftr = [int(x) for x in ftr.split('|')]
+        # ftr = [int(x) for x in ftr.split('|')]
+        ftr = [opts.split('$')[0] for opts in ftr.split('|')]
+        ftr_sel = {opts.split('$')[0]: opts.split('$')[1] for opts in ftr.split('|')}
 
     if path is None:
         path = input("Enter path to features: \n")
@@ -172,11 +174,12 @@ def get_feature_choice_cmd(ftr=None, path=None, cls=None, win_len=None):
     select_ind = []
 
     total_feature = features[ftr[0]]
-    if True:
-        select_ind = [(0,len(total_feature[0]))]
+    if ftr_sel[ftr[0]] > 0:
+        select_ind = [(0, len(total_feature[0]), ftr_sel[ftr[0]])]
     for i in range(1, len(ftr)):
-        if True:
-            select_ind.append((len(total_feature[0]), len(total_feature[0]) + len(features[ftr[i]][0])))
+        if ftr_sel[ftr[i]] > 0:
+            start = len(total_feature[0])
+            select_ind.append((start, start + len(features[ftr[i]][0]), ftr_sel[ftr[i]]))
         total_feature = np.hstack((total_feature, features[ftr[i]]))
     # targets = np.array(classes)
     targets = [value for key, value in classes.items()]
@@ -197,7 +200,7 @@ def feature_selection(features, select_ind, targets):
             feat2 = np.hstack((feat2, features[:, last_ind:inds[0]]))
             total_supp = np.hstack((total_supp, np.arange(last_ind, inds[0])))
 
-        size = (inds[1] - inds[0]) / 10
+        size = (inds[1] - inds[0]) / inds[2]
         skb = SelectKBest(score_func=f_classif, k=size)
         f_select = skb.fit_transform(features[:, inds[0]:inds[1]], targets)
         f_supp = skb.get_support(indices=True)
@@ -218,6 +221,7 @@ def feature_selection(features, select_ind, targets):
 def main():
     clf_choice = None
     ftr_choice = None
+    ftr_sel = None
     win_len = None
     path = None
     opts = []
@@ -226,7 +230,11 @@ def main():
         opts = [line.strip('\n') for line in open(CONF_FILE)]
         clf_choice = int(opts[0])
         use_cv = int(opts[1])
-        ftr_choice = [int(x) for x in opts[2].split('|')]
+
+        ftr_choice = [int(opts.split('$')[0]) for opts in opts[2].split('|')]
+        ftr_sel = {int(opts.split('$')[0]): int(opts.split('$')[1]) for opts in opts[2].split('|')}
+
+        # ftr_choice, ftr_sel = [int(x), int(y) for x, y in setting.split('$') for settings in ftr_settings]
         win_len = float(opts[3])
         path = opts[4]
         cls_choice = [x for x in opts[5].split('|')]
@@ -235,7 +243,7 @@ def main():
 
     clf = get_classifier_from_cmd(clf_choice)
 
-    features, targets, select_ind = get_feature_choice_cmd(ftr=ftr_choice, path=path, cls=cls_choice, win_len=win_len)
+    features, targets, select_ind = get_feature_choice_cmd(ftr=ftr_choice, ftr_sel=ftr_sel, path=path, cls=cls_choice, win_len=win_len)
 
     numtest = {}
     train_t = []
