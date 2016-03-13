@@ -95,7 +95,7 @@ def get_windowed_zcr(data, block_length):
 
     w_zcr = []
 
-    for i in range (0, num_blocks - 1):
+    for i in range(0, num_blocks):
         start = i * block_length
         stop = np.min([(start + block_length - 1), len(data)])
 

@@ -1,0 +1,277 @@
+Options for this experiment are as follows: 
+['1', '1', '7', '0.01', 'D:\\Documents\\DT228_4\\FYP\\Datasets\\080327\\0_Audio\\', 'Entertainment|Music|Comedy|Film & Animation|News & Politics|Sports|People & Blogs|Howto & Style|Pets & Animals']
+
+Total Accuracy: 0.17 (+/- 0.08)
+
+Summed CMs
+--------------------
+[[1 3 0 2 0 4 3 5 2]
+ [4 2 1 1 3 6 1 3 7]
+ [0 2 1 0 3 3 3 6 2]
+ [0 5 2 7 0 2 1 0 3]
+ [2 4 1 0 6 4 2 2 5]
+ [1 7 4 2 5 4 3 6 1]
+ [1 5 4 4 4 5 6 2 3]
+ [1 3 1 1 3 3 6 3 2]
+ [2 6 1 3 5 3 1 2 3]]
+
+Final CM from aggregate targets
+-----------------------------[[1 3 0 2 0 4 3 5 2]
+ [4 2 1 1 3 6 1 3 7]
+ [0 2 1 0 3 3 3 6 2]
+ [0 5 2 7 0 2 1 0 3]
+ [2 4 1 0 6 4 2 2 5]
+ [1 7 4 2 5 4 3 6 1]
+ [1 5 4 4 4 5 6 2 3]
+ [1 3 1 1 3 3 6 3 2]
+ [2 6 1 3 5 3 1 2 3]]
+
+REPORT!!!
+-----------------------------------
+             precision    recall  f1-score   support
+
+     Comedy       0.08      0.05      0.06        20
+Entertainment       0.05      0.07      0.06        28
+Film & Animation       0.07      0.05      0.06        20
+Howto & Style       0.35      0.35      0.35        20
+      Music       0.21      0.23      0.22        26
+News & Politics       0.12      0.12      0.12        33
+People & Blogs       0.23      0.18      0.20        34
+Pets & Animals       0.10      0.13      0.12        23
+     Sports       0.11      0.12      0.11        26
+
+avg / total       0.15      0.14      0.14       230
+Target                    Prediction
+----------------------------------
+Comedy                    News & Politics
+Comedy                    Entertainment
+Comedy                    News & Politics
+Comedy                    Pets & Animals
+Comedy                    Pets & Animals
+Comedy                    Pets & Animals
+Comedy                    Comedy
+Entertainment             Sports
+Entertainment             Music
+Entertainment             Pets & Animals
+Entertainment             Pets & Animals
+Entertainment             News & Politics
+Entertainment             Comedy
+Entertainment             Howto & Style
+Entertainment             Comedy
+Entertainment             Sports
+Entertainment             Sports
+Film & Animation          Film & Animation
+Film & Animation          Entertainment
+Film & Animation          Pets & Animals
+Film & Animation          People & Blogs
+Film & Animation          People & Blogs
+Film & Animation          Pets & Animals
+Film & Animation          Entertainment
+Howto & Style             Howto & Style
+Howto & Style             Entertainment
+Howto & Style             Sports
+Howto & Style             Entertainment
+Howto & Style             Entertainment
+Howto & Style             Sports
+Howto & Style             Film & Animation
+Music                     Music
+Music                     Music
+Music                     News & Politics
+Music                     Pets & Animals
+Music                     Sports
+Music                     People & Blogs
+Music                     Sports
+Music                     Comedy
+Music                     Entertainment
+News & Politics           Pets & Animals
+News & Politics           Film & Animation
+News & Politics           Pets & Animals
+News & Politics           Pets & Animals
+News & Politics           Pets & Animals
+News & Politics           Howto & Style
+News & Politics           News & Politics
+News & Politics           Film & Animation
+News & Politics           Entertainment
+News & Politics           Entertainment
+News & Politics           Entertainment
+People & Blogs            People & Blogs
+People & Blogs            News & Politics
+People & Blogs            Film & Animation
+People & Blogs            News & Politics
+People & Blogs            News & Politics
+People & Blogs            Music
+People & Blogs            News & Politics
+People & Blogs            People & Blogs
+People & Blogs            Sports
+People & Blogs            Pets & Animals
+People & Blogs            Music
+People & Blogs            Film & Animation
+Pets & Animals            Howto & Style
+Pets & Animals            Pets & Animals
+Pets & Animals            Film & Animation
+Pets & Animals            Entertainment
+Pets & Animals            Comedy
+Pets & Animals            People & Blogs
+Pets & Animals            People & Blogs
+Pets & Animals            People & Blogs
+Sports                    Pets & Animals
+Sports                    Music
+Sports                    Film & Animation
+Sports                    News & Politics
+Sports                    Music
+Sports                    Howto & Style
+Sports                    Entertainment
+Sports                    Entertainment
+Sports                    Comedy
+Comedy                    News & Politics
+Comedy                    People & Blogs
+Comedy                    People & Blogs
+Comedy                    Entertainment
+Comedy                    Pets & Animals
+Comedy                    People & Blogs
+Comedy                    Pets & Animals
+Entertainment             Comedy
+Entertainment             News & Politics
+Entertainment             Music
+Entertainment             People & Blogs
+Entertainment             News & Politics
+Entertainment             Entertainment
+Entertainment             Sports
+Entertainment             Film & Animation
+Entertainment             Sports
+Film & Animation          News & Politics
+Film & Animation          Music
+Film & Animation          People & Blogs
+Film & Animation          News & Politics
+Film & Animation          Sports
+Film & Animation          Pets & Animals
+Film & Animation          Music
+Howto & Style             Film & Animation
+Howto & Style             News & Politics
+Howto & Style             Howto & Style
+Howto & Style             People & Blogs
+Howto & Style             Howto & Style
+Howto & Style             Howto & Style
+Howto & Style             Entertainment
+Music                     Film & Animation
+Music                     Entertainment
+Music                     People & Blogs
+Music                     Entertainment
+Music                     News & Politics
+Music                     Sports
+Music                     Music
+Music                     Sports
+Music                     News & Politics
+News & Politics           Entertainment
+News & Politics           People & Blogs
+News & Politics           Entertainment
+News & Politics           News & Politics
+News & Politics           News & Politics
+News & Politics           Pets & Animals
+News & Politics           Pets & Animals
+News & Politics           Film & Animation
+News & Politics           Entertainment
+News & Politics           Music
+News & Politics           Howto & Style
+People & Blogs            Music
+People & Blogs            Music
+People & Blogs            Comedy
+People & Blogs            Entertainment
+People & Blogs            People & Blogs
+People & Blogs            News & Politics
+People & Blogs            Entertainment
+People & Blogs            Howto & Style
+People & Blogs            People & Blogs
+People & Blogs            Film & Animation
+People & Blogs            Howto & Style
+Pets & Animals            Entertainment
+Pets & Animals            Music
+Pets & Animals            Music
+Pets & Animals            People & Blogs
+Pets & Animals            News & Politics
+Pets & Animals            News & Politics
+Pets & Animals            Entertainment
+Pets & Animals            Sports
+Sports                    Music
+Sports                    Entertainment
+Sports                    Comedy
+Sports                    People & Blogs
+Sports                    Sports
+Sports                    Music
+Sports                    News & Politics
+Sports                    Howto & Style
+Sports                    Howto & Style
+Comedy                    Entertainment
+Comedy                    Sports
+Comedy                    Sports
+Comedy                    Howto & Style
+Comedy                    News & Politics
+Comedy                    Howto & Style
+Entertainment             News & Politics
+Entertainment             News & Politics
+Entertainment             Sports
+Entertainment             News & Politics
+Entertainment             Music
+Entertainment             Entertainment
+Entertainment             Sports
+Entertainment             Comedy
+Entertainment             Pets & Animals
+Film & Animation          Pets & Animals
+Film & Animation          Sports
+Film & Animation          Pets & Animals
+Film & Animation          News & Politics
+Film & Animation          Music
+Film & Animation          Pets & Animals
+Howto & Style             News & Politics
+Howto & Style             Howto & Style
+Howto & Style             Howto & Style
+Howto & Style             Howto & Style
+Howto & Style             Entertainment
+Howto & Style             Sports
+Music                     Music
+Music                     News & Politics
+Music                     Comedy
+Music                     Sports
+Music                     Entertainment
+Music                     Pets & Animals
+Music                     Music
+Music                     Music
+News & Politics           Music
+News & Politics           News & Politics
+News & Politics           People & Blogs
+News & Politics           Music
+News & Politics           Comedy
+News & Politics           People & Blogs
+News & Politics           Film & Animation
+News & Politics           Music
+News & Politics           Entertainment
+News & Politics           Music
+News & Politics           Sports
+People & Blogs            Howto & Style
+People & Blogs            Howto & Style
+People & Blogs            Entertainment
+People & Blogs            People & Blogs
+People & Blogs            Film & Animation
+People & Blogs            Sports
+People & Blogs            Entertainment
+People & Blogs            People & Blogs
+People & Blogs            Pets & Animals
+People & Blogs            Entertainment
+People & Blogs            Sports
+Pets & Animals            News & Politics
+Pets & Animals            Sports
+Pets & Animals            People & Blogs
+Pets & Animals            Music
+Pets & Animals            Pets & Animals
+Pets & Animals            Pets & Animals
+Pets & Animals            People & Blogs
+Sports                    Pets & Animals
+Sports                    Sports
+Sports                    Music
+Sports                    News & Politics
+Sports                    Entertainment
+Sports                    Entertainment
+Sports                    Sports
+Sports                    Entertainment
+
+
