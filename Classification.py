@@ -10,10 +10,12 @@ from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import cross_val_predict
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import SelectKBest
+from sklearn.decomposition import PCA
 
 import numpy as np
 import scipy.fftpack as fft
 from VideoFeatures import VideoFeatures
+import WnLFeatures as wnl
 import pickle as pkl
 import time
 
@@ -57,6 +59,7 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
         print("6. Spectroid")
         print("7. FFT average over 1s window")
         print("8. ZCR over window")
+        print("9. MFCC over window")
 
         ftr = input()
         # ftr = [int(x) for x in ftr.split('|')]
@@ -101,6 +104,9 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
                         cur_feature[7] = vid.get_windowed_fft(int(np.ceil(vid.rate * win_len)))
                     if 8 in ftr:
                         cur_feature[8] = vid.get_windowed_zcr(int(np.ceil(vid.rate * win_len)))
+                    if 9 in ftr:
+                        cur_feature[9] = np.array(wnl.get_window_mfcc(vid.mfcc, int(np.ceil(vid.rate * win_len)))) \
+                            .reshape((1, -1))[0]
 
                     if start:
                         for i in ftr:
@@ -128,7 +134,8 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
                                                                  mode="constant")
                                             f_max_len[i] = cur_feature[i].shape[1]
                                         else:
-                                            features[i] = np.pad(features[i], (0, cur_feature[i].shape[1] - f_max_len[i]),
+                                            features[i] = np.pad(features[i],
+                                                                 (0, cur_feature[i].shape[1] - f_max_len[i]),
                                                                  mode="constant")
                                             f_max_len[i] = cur_feature[i].shape[1]
 
@@ -145,12 +152,14 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
                                                                  mode="constant")
                                             f_max_len[i] = cur_feature[i].shape[0]
                                         else:
-                                            features[i] = np.pad(features[i], (0, cur_feature[i].shape[0] - f_max_len[i]),
+                                            features[i] = np.pad(features[i],
+                                                                 (0, cur_feature[i].shape[0] - f_max_len[i]),
                                                                  mode="constant")
                                             f_max_len[i] = cur_feature[i].shape[0]
 
                                     elif cur_feature[i].shape[0] < f_max_len[i]:
-                                        cur_feature[i] = np.pad(cur_feature[i], (0, f_max_len[i] - cur_feature[i].shape[0]),
+                                        cur_feature[i] = np.pad(cur_feature[i],
+                                                                (0, f_max_len[i] - cur_feature[i].shape[0]),
                                                                 mode="constant")
 
                             features[i] = np.vstack((features[i], [cur_feature[i]]))
@@ -190,6 +199,7 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
 def feature_selection(features, select_ind, targets):
     start_sel = True
     last_ind = 0
+    feat2 = features
     for inds in select_ind:
         if start_sel:
             if inds[0] > 0:
@@ -218,6 +228,34 @@ def feature_selection(features, select_ind, targets):
     return feat2, total_supp
 
 
+def feature_reduction_fit(features, select_ind, red_pca, fit=False):
+    start_sel = True
+    last_ind = 0
+    feat2 = features
+
+    for inds in select_ind:
+        if start_sel:
+            if inds[0] > 0:
+                feat2 = features[:, 0:inds[0]]
+                start_sel = False
+        elif inds[0] > last_ind:
+            feat2 = np.hstack((feat2, features[:, last_ind:inds[0]]))
+
+        if fit:
+            red_pca[inds[0]].fit(features[:, inds[0]:inds[1]])
+        f_reduct = red_pca[inds[0]].transform(features[:, inds[0]:inds[1]])
+
+        if start_sel:
+            feat2 = f_reduct
+            start_sel = False
+        else:
+            feat2 = np.hstack((feat2, f_reduct))
+
+        last_ind = inds[1]
+
+    return feat2, red_pca
+
+
 def main():
     clf_choice = None
     ftr_choice = None
@@ -236,14 +274,16 @@ def main():
 
         # ftr_choice, ftr_sel = [int(x), int(y) for x, y in setting.split('$') for settings in ftr_settings]
         win_len = float(opts[3])
-        path = opts[4]
-        cls_choice = [x for x in opts[5].split('|')]
+        reduction_choice = int(opts[4])
+        path = opts[5]
+        cls_choice = [x for x in opts[6].split('|')]
     except FileNotFoundError:
         use_cv = int(input("Enter 1 to use Stratified Kfold CV: \n"))
 
     clf = get_classifier_from_cmd(clf_choice)
 
-    features, targets, select_ind = get_feature_choice_cmd(ftr=ftr_choice, ftr_sel=ftr_sel, path=path, cls=cls_choice, win_len=win_len)
+    features, targets, select_ind = get_feature_choice_cmd(ftr=ftr_choice, ftr_sel=ftr_sel, path=path, cls=cls_choice,
+                                                           win_len=win_len)
 
     numtest = {}
     train_t = []
@@ -310,14 +350,26 @@ def main():
         for train_i, test_i in skf:
             # print("Predicted: " + preds[i] + "\t|\tCorrect Class: " + cor_preds[i])
             train_target = [targets[x] for x in train_i]
-            train_feats, train_supp = feature_selection(features[train_i], select_ind, train_target)
+
+            if reduction_choice == 1:
+                train_feats, train_supp = feature_selection(features[train_i], select_ind, train_target)
+            elif reduction_choice == 2:
+                reduct_pca = {}
+                for inds in select_ind:
+                    size = int((inds[1] - inds[0]) / inds[2])
+                    reduct_pca[inds[0]] = PCA(size)
+
+                train_feats, reduct_pca = feature_reduction_fit(features[train_i], select_ind, reduct_pca, fit=True)
 
             clf = clf.fit(train_feats, train_target)
 
             test_target = [targets[x] for x in test_i]
-            # test_feats, test_supp = feature_selection(features[test_i], select_ind, test_target)
             test_feats = features[test_i, :]
-            test_feats = test_feats[:, train_supp]
+            if reduction_choice == 1:
+                test_feats = test_feats[:, train_supp]
+            elif reduction_choice == 2:
+                test_feats, reduct_pca = feature_reduction_fit(features[test_i], select_ind, reduct_pca)
+
             preds = clf.predict(test_feats)
             sc = accuracy_score(test_target, preds)
             cm = confusion_matrix(test_target, preds)
@@ -370,4 +422,4 @@ if __name__ == "__main__":
     main()
 
 # D:\Documents\DT228_4\FYP\Datasets\Test\
-# D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio\
+# D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio

@@ -105,7 +105,20 @@ def get_windowed_zcr(data, block_length):
     return np.asarray(w_zcr)
 
 
+def get_window_mfcc(mfcc, block_length):
+    num_blocks = int(np.ceil(len(mfcc) / block_length))
 
+    w_mfcc = []
+
+    for i in range(0, num_blocks):
+        start = i * block_length
+        stop = np.min([(start + block_length - 1), len(mfcc)])
+
+        avg_mfcc = mfcc[start:stop, :]
+        avg_mfcc = np.mean(avg_mfcc, axis=0)
+        w_mfcc.append(avg_mfcc)
+
+    return np.asarray(w_mfcc)
 
 
 

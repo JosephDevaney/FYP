@@ -1,0 +1,7 @@
+Classifier
+Use Cross-Fold Validation - 1 for Yes
+Feature1$ReductionDivider1|Feature2$ReductionDivider2|...
+FeatureWindow size
+Use Feature Extraction or Reduction = 0/1/2
+Directory of Feature.ftr
+Features to use: "F1|F2|F3"
