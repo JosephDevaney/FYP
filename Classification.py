@@ -1,7 +1,7 @@
 from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
 from sklearn import svm
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
@@ -34,6 +34,8 @@ def get_classifier_from_cmd(cls=None):
 
         cls = int(input())
 
+    cls_opts = [x for x in cls.split('|')]
+    cls = int(cls_opts[0])
     if cls == 1:
         classifier = tree.DecisionTreeClassifier(criterion="entropy")
     elif cls == 2:
@@ -41,9 +43,11 @@ def get_classifier_from_cmd(cls=None):
         classifier = GaussianNB()
     elif cls == 3:
         # SVM
-        classifier = svm.SVC()
+        opts = [x for x in cls_opts[1].split('$')]
+        classifier = svm.SVC(kernel=opts[0], decision_function_shape=opts[1])
     elif cls == 4:
-        classifier = NearestNeighbors()
+        opts = [x for x in cls_opts[1].split('$')]
+        classifier = KNeighborsClassifier(n_neighbors=int(opts[0]), weights=opts[1], leaf_size=int(opts[2]))
 
     return classifier
 
@@ -95,11 +99,11 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
                     if 3 in ftr:
                         cur_feature[3] = np.array(vid.mfcc).reshape((1, -1))[0]
                     if 4 in ftr:
-                        cur_feature[4] = vid.mfcc_delta
+                        cur_feature[4] = np.array(vid.mfcc_delta).reshape((1, -1))[0]
                     if 5 in ftr:
-                        cur_feature[5] = vid.chromagram
+                        cur_feature[5] = np.array(vid.chromagram).reshape((1, -1))[0]
                     if 6 in ftr:
-                        cur_feature[6] = vid.spectroid
+                        cur_feature[6] = vid.spectroid[0]
                     if 7 in ftr:
                         cur_feature[7] = vid.get_windowed_fft(int(np.ceil(vid.rate * win_len)))
                     if 8 in ftr:
@@ -266,8 +270,9 @@ def main():
     cls_choice = []
     try:
         opts = [line.strip('\n') for line in open(CONF_FILE)]
-        clf_choice = int(opts[0])
-        use_cv = int(opts[1])
+        clf_choice = opts[0]
+        use_cv = int(opts[1].split('$')[0])
+        num_folds = int(opts[1].split('$')[1])
 
         ftr_choice = [int(opts.split('$')[0]) for opts in opts[2].split('|')]
         ftr_sel = {int(opts.split('$')[0]): int(opts.split('$')[1]) for opts in opts[2].split('|')}
@@ -327,7 +332,7 @@ def main():
         print(confusion_matrix(test_t, predictions))
         print("\n\n")
     else:
-        skf = StratifiedKFold(targets, n_folds=3)
+        skf = StratifiedKFold(targets, n_folds=num_folds)
 
         # result = cross_val_score(clf, features, targets, cv=skf)
 
@@ -350,6 +355,7 @@ def main():
         for train_i, test_i in skf:
             # print("Predicted: " + preds[i] + "\t|\tCorrect Class: " + cor_preds[i])
             train_target = [targets[x] for x in train_i]
+            train_feats = features[train_i]
 
             if reduction_choice == 1:
                 train_feats, train_supp = feature_selection(features[train_i], select_ind, train_target)
@@ -396,8 +402,8 @@ def main():
             # [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(test_target, preds[test_i])]
             # savefile.write('\n\n')
 
-        avg_score = total_score / 3
-        savefile.write("Total Accuracy: %0.2f \n\n" % avg_score)
+        avg_score = total_score / num_folds
+        savefile.write("Total Accuracy: %0.10f \n\n" % avg_score)
 
         savefile.write("Summed CMs\n--------------------\n")
         savefile.write(str(total_confusion))

@@ -8,7 +8,7 @@ def analyse_features():
     path = input("Enter the filepath here: \n")
     videos = {}
     try:
-        with open(path + "features30sec.ftr", "rb") as inp:
+        with open(path + "features.ftr", "rb") as inp:
             unpickle = pkl.Unpickler(inp)
             while True:
                 try:
