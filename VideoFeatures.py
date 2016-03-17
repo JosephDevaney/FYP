@@ -12,7 +12,7 @@ class VideoFeatures:
             data = data.T
 
         data = wnl.lib_to_mono(data)
-        data = data[:rate*30]
+        # data = data[:rate*30]
 
         self.rate = rate
         self.data = data

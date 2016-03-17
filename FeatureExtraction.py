@@ -22,6 +22,8 @@ def main():
         print(type(e))
         print(e.args)
 
+    cls = ["Entertainment", "Music", "Comedy", "Film & Animation", "News & Politics", "Sports", "People & Blogs",
+           "Howto & Style", "Pets & Animals"]
     # rate, data = wav.read(file)
     with open(path + FTR_NAME, "ab") as output:
         pickler = pkl.Pickler(output, -1)
@@ -29,10 +31,12 @@ def main():
         #  for file in os.listdir(path) if file.endswith('.wav') and file not in videos]
         for file in os.listdir(path):
             if file.endswith('.wav') and file not in videos:
-                rate, data = wav.read(path + file)
-                vid = VideoFeatures(rate, data, file)
-                vid.write_to_file(pickler)
-                videos[file] = vid.rate
+                cat = file[:file.index('_')]
+                if cat in cls:
+                    rate, data = wav.read(path + file)
+                    vid = VideoFeatures(rate, data, file)
+                    vid.write_to_file(pickler)
+                    videos[file] = vid.rate
 
     print("Dunzo!")
 

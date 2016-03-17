@@ -51,7 +51,7 @@ def librosa_mfcc_delta(rate, data):
 
     mfcc_delta = lib.feature.delta(mfcc)
 
-    return mfcc, mfcc_delta
+    return mfcc.T, mfcc_delta.T
 
 
 def librosa_chromagram(rate, data):
@@ -107,7 +107,7 @@ def get_windowed_zcr(data, block_length):
 
 def get_window_mfcc(mfcc, block_length):
     num_blocks = int(np.ceil(len(mfcc) / block_length))
-
+    mfcc = mfcc.T
     w_mfcc = []
 
     for i in range(0, num_blocks):

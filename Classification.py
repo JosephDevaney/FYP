@@ -11,6 +11,9 @@ from sklearn.cross_validation import cross_val_predict
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import SelectKBest
 from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import KernelPCA
+from sklearn.decomposition import RandomizedPCA
 
 import numpy as np
 import scipy.fftpack as fft
@@ -97,7 +100,7 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
                     if 2 in ftr:
                         cur_feature[2] = vid.silence_ratio
                     if 3 in ftr:
-                        cur_feature[3] = np.array(vid.mfcc).reshape((1, -1))[0]
+                        cur_feature[3] = np.array(vid.mfcc.T).reshape((1, -1))[0]
                     if 4 in ftr:
                         cur_feature[4] = np.array(vid.mfcc_delta).reshape((1, -1))[0]
                     if 5 in ftr:
@@ -363,7 +366,10 @@ def main():
                 reduct_pca = {}
                 for inds in select_ind:
                     size = int((inds[1] - inds[0]) / inds[2])
-                    reduct_pca[inds[0]] = PCA(size)
+                    # reduct_pca[inds[0]] = PCA(size)
+                    # reduct_pca[inds[0]] = TruncatedSVD(n_components=size)
+                    # reduct_pca[inds[0]] = KernelPCA(n_components=size, kernel='linear')
+                    reduct_pca[inds[0]] = RandomizedPCA(n_components=size)
 
                 train_feats, reduct_pca = feature_reduction_fit(features[train_i], select_ind, reduct_pca, fit=True)
 
