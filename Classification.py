@@ -1,5 +1,5 @@
 from sklearn import tree
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
 from sklearn import svm
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
@@ -10,10 +10,15 @@ from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import cross_val_predict
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectPercentile
 from sklearn.decomposition import PCA
 from sklearn.decomposition import TruncatedSVD
 from sklearn.decomposition import KernelPCA
 from sklearn.decomposition import RandomizedPCA
+
+from hmmlearn import hmm
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 
 import numpy as np
 import scipy.fftpack as fft
@@ -21,6 +26,7 @@ from VideoFeatures import VideoFeatures
 import WnLFeatures as wnl
 import pickle as pkl
 import time
+import gc
 
 CONF_FILE = "config.txt"
 REG_FEATS = "features.ftr"
@@ -34,6 +40,7 @@ def get_classifier_from_cmd(cls=None):
         print("2. Naive Bayes")
         print("3. SVM")
         print("4. kNN")
+        print("5. Random Forest")
 
         cls = int(input())
 
@@ -43,14 +50,22 @@ def get_classifier_from_cmd(cls=None):
         classifier = tree.DecisionTreeClassifier(criterion="entropy")
     elif cls == 2:
         # NB
-        classifier = GaussianNB()
+        # classifier = GaussianNB()
+        # classifier = MultinomialNB()
+        classifier = BernoulliNB()
     elif cls == 3:
         # SVM
         opts = [x for x in cls_opts[1].split('$')]
-        classifier = svm.SVC(kernel=opts[0], decision_function_shape=opts[1])
+        gm = 'auto'
+        if opts[0] in ['rbf', 'poly', 'sigmoid']:
+            if opts[2] != 'auto':
+                gm = float(opts[2])
+        classifier = svm.SVC(kernel=opts[0], decision_function_shape=opts[1], gamma=gm)
     elif cls == 4:
         opts = [x for x in cls_opts[1].split('$')]
-        classifier = KNeighborsClassifier(n_neighbors=int(opts[0]), weights=opts[1], leaf_size=int(opts[2]))
+        classifier = KNeighborsClassifier(n_neighbors=int(opts[0]), algorithm='kd_tree', weights=opts[1], leaf_size=int(opts[2]))
+    elif cls == 5:
+        classifier = RandomForestClassifier(criterion="entropy")
 
     return classifier
 
@@ -90,17 +105,21 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
 
     with open(path + SHORT_FEATS, "rb") as inp:
         unpickle = pkl.Unpickler(inp)
+        count = 0
         while True:
             try:
                 cur_feature = {}
                 vid = unpickle.load()
-                if vid.get_category_from_name() in cls:
+                vthresh = vid.rate * 30
+                vlen = len(vid.data)
+                if vid.get_category_from_name() in cls: # and vlen >= vthresh:
+                    count += 1
                     if 1 in ftr:
                         cur_feature[1] = vid.bvratio
                     if 2 in ftr:
                         cur_feature[2] = vid.silence_ratio
                     if 3 in ftr:
-                        cur_feature[3] = np.array(vid.mfcc.T).reshape((1, -1))[0]
+                        cur_feature[3] = np.array(vid.mfcc).reshape((1, -1))[0]
                     if 4 in ftr:
                         cur_feature[4] = np.array(vid.mfcc_delta).reshape((1, -1))[0]
                     if 5 in ftr:
@@ -181,6 +200,8 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
             except pkl.UnpicklingError:
                 print("Unable to load object2")
 
+            gc.collect()
+
     # feat2 = {}
     # for i in range(0, len(ftr)):
     #     if True:
@@ -188,7 +209,7 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
     #         feat2[ftr[i]] = SelectKBest(score_func=f_classif, k=size).fit_transform(features[ftr[i]], classes[ftr[i]])
 
     select_ind = []
-
+    print("Count = ", count)
     total_feature = features[ftr[0]]
     if ftr_sel[ftr[0]] > 0:
         select_ind = [(0, len(total_feature[0]), ftr_sel[ftr[0]])]
@@ -212,14 +233,23 @@ def feature_selection(features, select_ind, targets):
             if inds[0] > 0:
                 feat2 = features[:, 0:inds[0]]
                 total_supp = np.arange(0, inds[0])
+                # total_supp = np.ones(inds[0], dtype=bool)
                 start_sel = False
+                last_ind = inds[0]
         elif inds[0] > last_ind:
             feat2 = np.hstack((feat2, features[:, last_ind:inds[0]]))
             total_supp = np.hstack((total_supp, np.arange(last_ind, inds[0])))
+            # total_supp = np.hstack((total_supp, np.ones((inds[0]-last_ind), dtype=bool)))
 
         size = (inds[1] - inds[0]) / inds[2]
         skb = SelectKBest(score_func=f_classif, k=size)
-        f_select = skb.fit_transform(features[:, inds[0]:inds[1]], targets)
+        # skb = SelectPercentile(score_func=f_classif, percentile=inds[2])
+
+        f = features[:, inds[0]:inds[1]]
+
+        f_select = skb.fit_transform(f, targets)
+        # skb.fit(f, targets)
+        # f_select = skb.transform(f)
         f_supp = skb.get_support(indices=True)
         f_supp += last_ind
         if start_sel:
@@ -366,10 +396,10 @@ def main():
                 reduct_pca = {}
                 for inds in select_ind:
                     size = int((inds[1] - inds[0]) / inds[2])
-                    # reduct_pca[inds[0]] = PCA(size)
+                    reduct_pca[inds[0]] = PCA(size)
                     # reduct_pca[inds[0]] = TruncatedSVD(n_components=size)
                     # reduct_pca[inds[0]] = KernelPCA(n_components=size, kernel='linear')
-                    reduct_pca[inds[0]] = RandomizedPCA(n_components=size)
+                    # reduct_pca[inds[0]] = RandomizedPCA(n_components=size)
 
                 train_feats, reduct_pca = feature_reduction_fit(features[train_i], select_ind, reduct_pca, fit=True)
 
@@ -396,6 +426,9 @@ def main():
             total_targets.extend(test_target)
             total_preds.extend(preds)
             acc = str(accuracy_score(test_target, preds))
+
+            # gc.collect()
+            # print("Took out the trash!!")
 
             # savefile.write("Accuracy is : " + acc)
             # savefile.write("\n----------------------------\n")

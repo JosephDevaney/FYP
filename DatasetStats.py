@@ -8,7 +8,7 @@ def analyse_features():
     path = input("Enter the filepath here: \n")
     videos = {}
     try:
-        with open(path + "features.ftr", "rb") as inp:
+        with open(path + "features30sec.ftr", "rb") as inp:
             unpickle = pkl.Unpickler(inp)
             while True:
                 try:
@@ -27,6 +27,8 @@ def analyse_features():
                     print("Unable to load object")
                 except pkl.UnpicklingError:
                     print("Unable to load object2")
+                except Exception as e:
+                    print(e)
     except Exception as e:
         print(type(e))
         print(e.args)

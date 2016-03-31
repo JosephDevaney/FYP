@@ -3,7 +3,7 @@ import scipy.io.wavfile as wav
 import pickle as pkl
 from VideoFeatures import VideoFeatures
 
-FTR_NAME = "features.ftr"
+FTR_NAME = "features30sec.ftr"
 
 def main():
     path = input("Enter the filepath here: \n")

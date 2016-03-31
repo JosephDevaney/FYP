@@ -1,5 +1,5 @@
 Classifier
-Use Cross-Fold Validation - 1 for Yes
+Use Cross-Fold Validation - 1 for Yes $ Number of folds
 Feature1$ReductionDivider1|Feature2$ReductionDivider2|...
 FeatureWindow size
 Use Feature Extraction or Reduction = 0/1/2
