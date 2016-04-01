@@ -19,6 +19,7 @@ from sklearn.decomposition import RandomizedPCA
 from hmmlearn import hmm
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import Normalizer, StandardScaler, RobustScaler, MinMaxScaler
 
 import numpy as np
 import scipy.fftpack as fft
@@ -390,6 +391,9 @@ def main():
             train_target = [targets[x] for x in train_i]
             train_feats = features[train_i]
 
+            norm = MinMaxScaler((-1, 1)).fit(train_feats)
+            train_feats = norm.transform(train_feats)
+
             if reduction_choice == 1:
                 train_feats, train_supp = feature_selection(features[train_i], select_ind, train_target)
             elif reduction_choice == 2:
@@ -406,7 +410,8 @@ def main():
             clf = clf.fit(train_feats, train_target)
 
             test_target = [targets[x] for x in test_i]
-            test_feats = features[test_i, :]
+            # test_feats = features[test_i, :]
+            test_feats = norm.transform(features[test_i, :])
             if reduction_choice == 1:
                 test_feats = test_feats[:, train_supp]
             elif reduction_choice == 2:

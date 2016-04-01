@@ -1,7 +1,7 @@
-3|poly$ovr$0.0000000065
-1$5
+3|poly$ovr$0.0000000055
+1$10
 3$0|8$10
 10000
 1
-D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio2\
+D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio\
 Entertainment|Music|Comedy|Film & Animation|News & Politics|Sports|People & Blogs|Howto & Style|Pets & Animals
