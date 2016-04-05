@@ -63,7 +63,7 @@ def get_classifier_from_cmd(cls=None):
         classifier = svm.SVC(kernel=opts[0], decision_function_shape=opts[1], gamma=gm)
     elif cls == 4:
         opts = [x for x in cls_opts[1].split('$')]
-        classifier = KNeighborsClassifier(n_neighbors=int(opts[0]), algorithm='kd_tree', weights=opts[1], leaf_size=int(opts[2]))
+        classifier = KNeighborsClassifier(n_neighbors=int(opts[0]), algorithm='ball_tree', weights=opts[1], leaf_size=int(opts[2]))
     elif cls == 5:
         classifier = RandomForestClassifier(criterion="entropy")
 
@@ -238,7 +238,7 @@ def feature_selection(features, select_ind, targets):
                 last_ind = inds[0]
         elif inds[0] > last_ind:
             feat2 = np.hstack((feat2, features[:, last_ind:inds[0]]))
-            total_supp = np.hstack((total_supp, np.arange(last_ind, inds[0])))
+            total_supp = np.hstack((total_supp, np.arange(last_ind, inds[0] + 1)))
             # total_supp = np.hstack((total_supp, np.ones((inds[0]-last_ind), dtype=bool)))
 
         size = (inds[1] - inds[0]) / inds[2]
@@ -315,6 +315,7 @@ def main():
         reduction_choice = int(opts[4])
         path = opts[5]
         cls_choice = [x for x in opts[6].split('|')]
+        Num_tests = int(opts[7])
     except FileNotFoundError:
         use_cv = int(input("Enter 1 to use Stratified Kfold CV: \n"))
 
@@ -365,102 +366,103 @@ def main():
         print(confusion_matrix(test_t, predictions))
         print("\n\n")
     else:
-        skf = StratifiedKFold(targets, n_folds=num_folds)
+        for _ in range(Num_tests):
+            skf = StratifiedKFold(targets, n_folds=num_folds)
 
-        # result = cross_val_score(clf, features, targets, cv=skf)
+            # result = cross_val_score(clf, features, targets, cv=skf)
 
-        filename = time.strftime("Tests\\%Y_%m_%d__%H_%M_%S", time.gmtime()) + '.txt'
-        savefile = open(filename, 'w+')
+            filename = time.strftime("Tests\\%Y_%m_%d__%H_%M_%S", time.gmtime()) + '.txt'
+            savefile = open(filename, 'w+')
 
-        if opts is not []:
-            savefile.write("Options for this experiment are as follows: \n")
-            savefile.write(str(opts) + '\n\n')
+            if opts is not []:
+                savefile.write("Options for this experiment are as follows: \n")
+                savefile.write(str(opts) + '\n\n')
 
-        # savefile.write("Total Accuracy: %0.2f (+/- %0.2f)\n\n" % (result.mean(), result.std() * 2))
+            # savefile.write("Total Accuracy: %0.2f (+/- %0.2f)\n\n" % (result.mean(), result.std() * 2))
 
-        # preds = cross_val_predict(clf, features, targets, cv=skf)
-        # cor_preds = targets[skf]
+            # preds = cross_val_predict(clf, features, targets, cv=skf)
+            # cor_preds = targets[skf]
 
-        start_cls = True
+            start_cls = True
 
-        total_targets = []
-        total_preds = []
-        for train_i, test_i in skf:
-            # print("Predicted: " + preds[i] + "\t|\tCorrect Class: " + cor_preds[i])
-            train_target = [targets[x] for x in train_i]
-            train_feats = features[train_i]
+            total_targets = []
+            total_preds = []
+            for train_i, test_i in skf:
+                # print("Predicted: " + preds[i] + "\t|\tCorrect Class: " + cor_preds[i])
+                train_target = [targets[x] for x in train_i]
+                train_feats = features[train_i]
 
-            if reduction_choice == 1:
-                train_feats, train_supp = feature_selection(features[train_i], select_ind, train_target)
-            elif reduction_choice == 2:
-                reduct_pca = {}
-                for inds in select_ind:
-                    size = int((inds[1] - inds[0]) / inds[2])
-                    reduct_pca[inds[0]] = PCA(size)
-                    # reduct_pca[inds[0]] = TruncatedSVD(n_components=size)
-                    # reduct_pca[inds[0]] = KernelPCA(n_components=size, kernel='linear')
-                    # reduct_pca[inds[0]] = RandomizedPCA(n_components=size)
+                if reduction_choice == 1:
+                    train_feats, train_supp = feature_selection(features[train_i], select_ind, train_target)
+                elif reduction_choice == 2:
+                    reduct_pca = {}
+                    for inds in select_ind:
+                        size = int((inds[1] - inds[0]) / inds[2])
+                        reduct_pca[inds[0]] = PCA(size)
+                        # reduct_pca[inds[0]] = TruncatedSVD(n_components=size)
+                        # reduct_pca[inds[0]] = KernelPCA(n_components=size, kernel='linear')
+                        # reduct_pca[inds[0]] = RandomizedPCA(n_components=size)
 
-                train_feats, reduct_pca = feature_reduction_fit(features[train_i], select_ind, reduct_pca, fit=True)
+                    train_feats, reduct_pca = feature_reduction_fit(features[train_i], select_ind, reduct_pca, fit=True)
 
-            clf = clf.fit(train_feats, train_target)
+                clf = clf.fit(train_feats, train_target)
 
-            test_target = [targets[x] for x in test_i]
-            test_feats = features[test_i, :]
-            if reduction_choice == 1:
-                test_feats = test_feats[:, train_supp]
-            elif reduction_choice == 2:
-                test_feats, reduct_pca = feature_reduction_fit(features[test_i], select_ind, reduct_pca)
+                test_target = [targets[x] for x in test_i]
+                test_feats = features[test_i, :]
+                if reduction_choice == 1:
+                    test_feats = test_feats[:, train_supp]
+                elif reduction_choice == 2:
+                    test_feats, reduct_pca = feature_reduction_fit(features[test_i], select_ind, reduct_pca)
 
-            preds = clf.predict(test_feats)
-            sc = accuracy_score(test_target, preds)
-            cm = confusion_matrix(test_target, preds)
-            if start_cls:
-                total_confusion = cm
-                total_score = sc
-                start_cls = False
-            else:
-                total_confusion += cm
-                total_score += sc
+                preds = clf.predict(test_feats)
+                sc = accuracy_score(test_target, preds)
+                cm = confusion_matrix(test_target, preds)
+                if start_cls:
+                    total_confusion = cm
+                    total_score = sc
+                    start_cls = False
+                else:
+                    total_confusion += cm
+                    total_score += sc
 
-            total_targets.extend(test_target)
-            total_preds.extend(preds)
-            acc = str(accuracy_score(test_target, preds))
+                total_targets.extend(test_target)
+                total_preds.extend(preds)
+                acc = str(accuracy_score(test_target, preds))
 
-            # gc.collect()
-            # print("Took out the trash!!")
+                # gc.collect()
+                # print("Took out the trash!!")
 
-            # savefile.write("Accuracy is : " + acc)
-            # savefile.write("\n----------------------------\n")
-            # savefile.write("Confusion Matrix: \n")
-            # savefile.write(str(cm))
-            # savefile.write('\n\n')
-            #
-            # savefile.write("%-25s %s\n" % ("Target", "Prediction"))
-            # savefile.write("----------------------------------\n")
-            # [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(test_target, preds[test_i])]
-            # savefile.write('\n\n')
+                # savefile.write("Accuracy is : " + acc)
+                # savefile.write("\n----------------------------\n")
+                # savefile.write("Confusion Matrix: \n")
+                # savefile.write(str(cm))
+                # savefile.write('\n\n')
+                #
+                # savefile.write("%-25s %s\n" % ("Target", "Prediction"))
+                # savefile.write("----------------------------------\n")
+                # [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(test_target, preds[test_i])]
+                # savefile.write('\n\n')
 
-        avg_score = total_score / num_folds
-        savefile.write("Total Accuracy: %0.10f \n\n" % avg_score)
+            avg_score = total_score / num_folds
+            savefile.write("Total Accuracy: %0.10f \n\n" % avg_score)
 
-        savefile.write("Summed CMs\n--------------------\n")
-        savefile.write(str(total_confusion))
-        # savefile.write("\n\nFinal CM from aggregate targets\n-----------------------------\n")
-        # savefile.write(str(confusion_matrix(total_targets, total_preds)))
+            savefile.write("Summed CMs\n--------------------\n")
+            savefile.write(str(total_confusion))
+            # savefile.write("\n\nFinal CM from aggregate targets\n-----------------------------\n")
+            # savefile.write(str(confusion_matrix(total_targets, total_preds)))
 
-        unique_cls = []
-        [unique_cls.append(x) for x in total_targets if x not in unique_cls]
+            unique_cls = []
+            [unique_cls.append(x) for x in total_targets if x not in unique_cls]
 
-        savefile.write("\n\nREPORT!!!\n-----------------------------------\n")
-        savefile.write(classification_report(total_targets, total_preds))
+            savefile.write("\n\nREPORT!!!\n-----------------------------------\n")
+            savefile.write(classification_report(total_targets, total_preds))
 
-        savefile.write("%-25s %s\n" % ("Target", "Prediction"))
-        savefile.write("----------------------------------\n")
-        [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(total_targets, total_preds)]
-        savefile.write('\n\n')
+            savefile.write("%-25s %s\n" % ("Target", "Prediction"))
+            savefile.write("----------------------------------\n")
+            [savefile.write("%-25s %s\n" % (c1, c2)) for c1, c2 in zip(total_targets, total_preds)]
+            savefile.write('\n\n')
 
-        savefile.close()
+            savefile.close()
 
 
 if __name__ == "__main__":
