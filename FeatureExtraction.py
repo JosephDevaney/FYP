@@ -5,6 +5,11 @@ from VideoFeatures import VideoFeatures
 
 FTR_NAME = "features30sec.ftr"
 
+
+# Checks for existing Features file and loads the filename of any existing objects. These will not be duplicated
+# Read all .wav files and get the filename, rate and data for each
+# This information is passed to the constructor of a VideoFeatures object to calculate all features.
+#  Each object is then pickled to the Features file
 def main():
     path = input("Enter the filepath here: \n")
     videos = {}
@@ -44,4 +49,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-    # D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio\Autos & Vehicles_7n3jD-kxb1U_310.wav
+# D:\Documents\DT228_4\FYP\Datasets\080327\0_Audio\Autos & Vehicles_7n3jD-kxb1U_310.wav

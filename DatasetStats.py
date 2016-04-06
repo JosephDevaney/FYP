@@ -4,6 +4,7 @@ import pickle as pkl
 from VideoFeatures import VideoFeatures
 
 
+# Builds a report of a features file detailing the number of instances per category and the average length
 def analyse_features():
     path = input("Enter the filepath here: \n")
     videos = {}
@@ -36,6 +37,7 @@ def analyse_features():
     return videos
 
 
+# Checks a dataset text file and counts the number of instances per class.
 def analyse_videos_file():
     vid_stats = {}
     while True:

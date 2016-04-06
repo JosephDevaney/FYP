@@ -28,11 +28,15 @@ import pickle as pkl
 import time
 import gc
 
+
+# These should be loaded from the config file
 CONF_FILE = "config.txt"
 REG_FEATS = "features.ftr"
 SHORT_FEATS = "features30sec.ftr"
 
 
+# This function takes instantiates the desired Classification object and returns it
+# If the options are not loaded the user is prompted for the decision
 def get_classifier_from_cmd(cls=None):
     if cls is None:
         print("Please select the number that corresponds to the desired Classifier:")
@@ -70,6 +74,9 @@ def get_classifier_from_cmd(cls=None):
     return classifier
 
 
+# This function builds the matrix of features per instance and returns it.
+# Pads individual features with 0's to ensure each instance has the same number of columns/features
+# Tracks the columns that will have a feature reduction applied and the amount this will be.
 def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=None):
     if ftr is None:
         print("Please select the feature (Separated by | for multiple):")
@@ -102,17 +109,18 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
     features = {}
     f_max_len = {}
     classes = {}
+    # Path is an array containing potentially multiple features files that can be used to load Video objects from disk.
     for p in path:
         with open(p + SHORT_FEATS, "rb") as inp:
             unpickle = pkl.Unpickler(inp)
             count = 0
+            # Create the UnPickler object and loop until there are no objects left in the file. Break from loop then.
             while True:
                 try:
                     cur_feature = {}
                     vid = unpickle.load()
-                    vthresh = vid.rate * 30
-                    vlen = len(vid.data)
-                    if vid.get_category_from_name() in cls: # and vlen >= vthresh:
+                    # If video is in the approved class list add all selected features to a dictionary cur_feature
+                    if vid.get_category_from_name() in cls:
                         count += 1
                         if 1 in ftr:
                             cur_feature[1] = vid.bvratio
@@ -134,6 +142,10 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
                             cur_feature[9] = np.array(wnl.get_window_mfcc(vid.mfcc, int(np.ceil(vid.rate * win_len)))) \
                                 .reshape((1, -1))[0]
 
+                        # This section was designed under the assumption that the features could be returned in various
+                        # 2d layouts. It essentially checks the size of the current feature against the largest
+                        # number of columns so far. It then pads the smaller one with 0's
+                        # This can definitely be refactored into simpler, more readable code.
                         if start:
                             for i in ftr:
                                 features[i] = np.array([cur_feature[i]])
@@ -148,7 +160,6 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
                             start = False
                             # classes = np.array(vid.get_category_from_name())
                             classes[i] = [vid.get_category_from_name()]
-
                         else:
                             for i in ftr:
                                 if hasattr(cur_feature[i], "__len__"):
@@ -202,12 +213,8 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
 
                 gc.collect()
 
-    # feat2 = {}
-    # for i in range(0, len(ftr)):
-    #     if True:
-    #         size = int(features[ftr[i]].shape[1] / 10)
-    #         feat2[ftr[i]] = SelectKBest(score_func=f_classif, k=size).fit_transform(features[ftr[i]], classes[ftr[i]])
-
+    # Join each feature into one large array.
+    # Keep track of the indices for each feature that needs reduction applied later
     select_ind = []
     print("Count = ", count)
     total_feature = features[ftr[0]]
@@ -224,11 +231,15 @@ def get_feature_choice_cmd(ftr=None, ftr_sel=None, path=None, cls=None, win_len=
     return total_feature, targets[0], select_ind
 
 
+# Apply the feature selection to the features matrix as necessary.
 def feature_selection(features, select_ind, targets):
     start_sel = True
     last_ind = 0
     feat2 = features
     for inds in select_ind:
+        # If this is the first loop check if the first feature to be reduced is not the first index.
+        # If so add all features up to that point to an array and track the original indices also
+        # Do the same if it is not the first loop, but the next reduce index is > the last index
         if start_sel:
             if inds[0] > 0:
                 feat2 = features[:, 0:inds[0]]
@@ -241,12 +252,15 @@ def feature_selection(features, select_ind, targets):
             total_supp = np.hstack((total_supp, np.arange(last_ind, inds[0] + 1)))
             # total_supp = np.hstack((total_supp, np.ones((inds[0]-last_ind), dtype=bool)))
 
+        # Get the number of columns to retain and create object
         size = (inds[1] - inds[0]) / inds[2]
         skb = SelectKBest(score_func=f_classif, k=size)
         # skb = SelectPercentile(score_func=f_classif, percentile=inds[2])
 
+        # slice out the columns relating to the current feature
         f = features[:, inds[0]:inds[1]]
 
+        # Return an array of the selected features. Get the indices and add them to an array
         f_select = skb.fit_transform(f, targets)
         # skb.fit(f, targets)
         # f_select = skb.transform(f)
@@ -265,6 +279,7 @@ def feature_selection(features, select_ind, targets):
     return feat2, total_supp
 
 
+# Perform PCA on the desired features
 def feature_reduction_fit(features, select_ind, red_pca, fit=False):
     start_sel = True
     last_ind = 0
@@ -278,6 +293,9 @@ def feature_reduction_fit(features, select_ind, red_pca, fit=False):
         elif inds[0] > last_ind:
             feat2 = np.hstack((feat2, features[:, last_ind:inds[0]]))
 
+        # If this is the training set, fit the data to the object before transforming.
+        # If its not then just transform
+        # Create the new array and return it and the PCA objects
         if fit:
             red_pca[inds[0]].fit(features[:, inds[0]:inds[1]])
         f_reduct = red_pca[inds[0]].transform(features[:, inds[0]:inds[1]])
@@ -301,6 +319,8 @@ def main():
     path = []
     opts = []
     cls_choice = []
+
+    # If the config.txt file exists, extract the options from it.
     try:
         opts = [line.strip('\n') for line in open(CONF_FILE)]
         clf_choice = opts[0]
@@ -331,6 +351,7 @@ def main():
     train_ind = []
 
     print("*****Starting to Test*****")
+    # In practice this option is never taken
     if use_cv != 1:
         for i in range(0, len(targets)):
             t = targets[i]
@@ -366,6 +387,7 @@ def main():
         print(confusion_matrix(test_t, predictions))
         print("\n\n")
     else:
+        # perform total classification for the specified number of iterations
         for _ in range(Num_tests):
             skf = StratifiedKFold(targets, n_folds=num_folds)
 
@@ -392,6 +414,7 @@ def main():
                 train_target = [targets[x] for x in train_i]
                 train_feats = features[train_i]
 
+                # Choose Selection or PCA reduction
                 if reduction_choice == 1:
                     train_feats, train_supp = feature_selection(features[train_i], select_ind, train_target)
                 elif reduction_choice == 2:
@@ -405,8 +428,10 @@ def main():
 
                     train_feats, reduct_pca = feature_reduction_fit(features[train_i], select_ind, reduct_pca, fit=True)
 
+                # Fit the model to the training data
                 clf = clf.fit(train_feats, train_target)
 
+                # Prepare the test data in the same format as the training data
                 test_target = [targets[x] for x in test_i]
                 test_feats = features[test_i, :]
                 if reduction_choice == 1:
@@ -414,6 +439,8 @@ def main():
                 elif reduction_choice == 2:
                     test_feats, reduct_pca = feature_reduction_fit(features[test_i], select_ind, reduct_pca)
 
+                # Test the model of test set. Calculate the Accuracy Score and Confusion Matrix
+                # Accuracy score will have the mean of all results calculated. CM will be summed.
                 preds = clf.predict(test_feats)
                 sc = accuracy_score(test_target, preds)
                 cm = confusion_matrix(test_target, preds)

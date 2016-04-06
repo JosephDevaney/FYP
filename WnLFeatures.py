@@ -4,6 +4,8 @@ import math
 import scipy.fftpack as fft
 
 
+# This module calculates features using the librosa library.
+
 def beat_variance_ratio(rate, data, tolerance=0.1):
     try:
         tempo, beat_frames = lib.beat.beat_track(y=data, sr=rate)

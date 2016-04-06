@@ -2,6 +2,8 @@ import WnLFeatures as wnl
 import pickle as pkl
 
 
+# Stores the features for a single video instance.
+# Offers Pickle function to save the object to disk
 class VideoFeatures:
     def __init__(self, rate, data, filename):
         self.filename = filename

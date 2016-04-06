@@ -12,6 +12,7 @@ def load_classes():
     return [cl.strip('\n') for cl in open("classes.txt") if cl]
 
 
+# Setup options and call the library
 def download(v_id, cat, time, dir, options):
     print("Starting Download of " + v_id + "***")
     options['outtmpl'] = dir + '\\' + cat + '_' + v_id + '_' + time + '.%(ext)s'
@@ -26,6 +27,10 @@ def download(v_id, cat, time, dir, options):
         return False
 
 
+# Parses Text file and extracts necessary URL
+# Checks for existing file at specified location and ignores duplicate files.
+# Allows user to specify number of videos per class
+# Currently only selects videos between 30 and 240 seconds
 def main():
     classes = load_classes()
 
